@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Timeline</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background: #3498db;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+        }
+
+        .back-button::before {
+            content: "←";
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .project-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            min-width: 200px;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:hover {
+            border-color: #3498db;
+        }
+
+        .project-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .summary-item strong {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .summary-item span {
+            font-size: 18px;
+            color: #3498db;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            height: 600px;
+            position: relative;
+        }
+
+        .task-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .task-item {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+
+        .task-item h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        .task-item p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .task-item.completed { border-left: 4px solid #2ecc71; }
+        .task-item.in-progress { border-left: 4px solid #f1c40f; }
+        .task-item.pending { border-left: 4px solid #e74c3c; }
+
+        .subtasks {
+            margin-top: 10px;
+            padding-left: 15px;
+        }
+
+        .subtasks h4 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        .subtasks ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .subtasks li {
+            padding: 5px 0;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .project-selector {
+                width: 100%;
+            }
+
+            select {
+                width: 100%;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <button onclick="history.back()" class="back-button">Go Back</button>
+                <h1>Project Timeline</h1>
+            </div>
+            <div class="project-selector">
+                <label for="projectSelect">Select Project:</label>
+                <select id="projectSelect">
+                    <option value="">Choose a project...</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="project-summary" id="projectSummary"></div>
+        <div class="chart-container">
+            <canvas id="timelineChart"></canvas>
+        </div>
+        <div class="task-details" id="taskDetails"></div>
+    </div>
+
+    <script>
+        
+        let timelineChart = null;
+
+    
+        async function fetchProjects() {
+            try {
+                const response = await fetch('/api/project-timeline/projects');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid data format received');
+                }
+
+                const projectSelect = document.getElementById('projectSelect');
+                projectSelect.innerHTML = '<option value="">Choose a project...</option>';
+                
+                data.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.ProjectID;
+                    option.textContent = project.ProjectName;
+                    projectSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                document.getElementById('projectSelect').innerHTML = 
+                    '<option value="">Error loading projects. Please try again.</option>';
+            }
+        }
+
+
+        async function fetchTasks(projectId) {
+            try {
+
+                const tasksResponse = await fetch(`/api/project-timeline/tasks/${projectId}`);
+                if (!tasksResponse.ok) {
+                    if (tasksResponse.status === 401) {
+                        window.location.href = '/login';
+                        return [];
+                    }
+                    throw new Error(`HTTP error! status: ${tasksResponse.status}`);
+                }
+                const tasks = await tasksResponse.json();
+
+         
+                const teamsResponse = await fetch(`/api/tasks/project/${projectId}/teams`);
+                if (!teamsResponse.ok) {
+                    throw new Error('Failed to load teams');
+                }
+                const teams = await teamsResponse.json();
+
+                return tasks.map(task => ({
+                    ...task,
+                    TeamName: teams.find(team => team.TeamID === task.team_id)?.TeamName || 'Unknown Team'
+                }));
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+                return [];
+            }
+        }
+
+        function updateProjectSummary(tasks) {
+            const startDates = tasks.map(task => new Date(task.startTime));
+            const endDates = tasks.map(task => new Date(task.endTime));
+            const projectStart = new Date(Math.min(...startDates));
+            const projectEnd = new Date(Math.max(...endDates));
+            const projectDuration = Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24));
+            
+            const completedTasks = tasks.filter(task => task.status === 'Completed').length;
+            const inProgressTasks = tasks.filter(task => task.status === 'In Progress').length;
+
+            document.getElementById('projectSummary').innerHTML = `
+                <div class="summary-item">
+                    <strong>Start Date</strong>
+                    <span>${projectStart.toLocaleDateString()}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>End Date</strong>
+                    <span>${projectEnd.toLocaleDateString()}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total Tasks</strong>
+                    <span>${tasks.length}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Completed Tasks</strong>
+                    <span>${completedTasks}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>In Progress</strong>
+                    <span>${inProgressTasks}</span>
+                </div>
+            `;
+        }
+
+        function updateTaskDetails(tasks) {
+            const taskDetails = document.getElementById('taskDetails');
+            taskDetails.innerHTML = '<h2>Task Details</h2>';
+
+            tasks.forEach(task => {
+                const start = new Date(task.startTime);
+                const end = new Date(task.endTime);
+                const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                
+                const statusClass = task.status === 'Completed' ? 'completed' : 
+                                  task.status === 'In Progress' ? 'in-progress' : 'pending';
+
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${statusClass}`;
+                taskElement.innerHTML = `
+                    <h3>${task.description}</h3>
+                    <p><strong>Duration:</strong> ${duration} days</p>
+                    <p><strong>Start:</strong> ${start.toLocaleDateString()}</p>
+                    <p><strong>End:</strong> ${end.toLocaleDateString()}</p>
+                    <p><strong>Status:</strong> ${task.status}</p>
+                    <p><strong>Team:</strong> ${task.TeamName || 'Unknown'}</p>
+                    ${task.subtasks && task.subtasks.length > 0 ? `
+                        <div class="subtasks">
+                            <h4>Subtasks</h4>
+                            <ul>
+                                ${task.subtasks.map(subtask => `
+                                    <li>${subtask.description} 
+                                        (${subtask.completed ? 'Completed' : 'In Progress'})
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+                taskDetails.appendChild(taskElement);
+            });
+        }
+
+
+        function createTimelineChart(tasks) {
+            if (!tasks || tasks.length === 0) return;
+
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            if (timelineChart) timelineChart.destroy();
+
+            const startDates = tasks.map(task => new Date(task.startTime));
+            const endDates = tasks.map(task => new Date(task.endTime));
+            const projectStart = new Date(Math.min(...startDates));
+            const projectEnd = new Date(Math.max(...endDates));
+
+            const padding = 7; 
+            const paddedStart = new Date(projectStart);
+            paddedStart.setDate(paddedStart.getDate() - padding);
+            const paddedEnd = new Date(projectEnd);
+            paddedEnd.setDate(paddedEnd.getDate() + padding);
+
+            const chartData = tasks.map(task => {
+                const start = new Date(task.startTime);
+                const end = new Date(task.endTime);
+                const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                return {
+                    x: start,
+                    x2: end,
+                    y: task.description,
+                    status: task.status,
+                    team: task.TeamName || 'Unknown',
+                    duration: duration,
+                    subtasks: task.subtasks || []
+                };
+            });
+
+            timelineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: tasks.map(task => task.description),
+                    datasets: [{
+                        label: 'Tasks',
+                        data: chartData,
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        barPercentage: 0,
+                        barThickness: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    onHover: function(event, elements) {
+                        const tooltipEl = document.getElementById('custom-tooltip');
+                        
+                        if (event.x !== undefined) {
+                            const xValue = this.scales.x.getValueForPixel(event.x);
+                            const tasksAtTime = chartData.filter(task => 
+                                xValue >= task.x && xValue <= task.x2
+                            );
+                            
+                            if (tasksAtTime.length > 0) {
+                                if (!tooltipEl) {
+                                    const newTooltip = document.createElement('div');
+                                    newTooltip.id = 'custom-tooltip';
+                                    newTooltip.style.position = 'absolute';
+                                    newTooltip.style.backgroundColor = 'rgba(255, 255, 255, 0.92)';
+                                    newTooltip.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+                                    newTooltip.style.borderRadius = '8px';
+                                    newTooltip.style.padding = '16px';
+                                    newTooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                                    newTooltip.style.zIndex = '1000';
+                                    newTooltip.style.pointerEvents = 'none';
+                                    newTooltip.style.minWidth = '250px';
+                                    newTooltip.style.fontFamily = 'Arial, sans-serif';
+                                    newTooltip.style.transition = 'all 0.2s ease';
+                                    newTooltip.style.backdropFilter = 'blur(4px)';
+                                    document.body.appendChild(newTooltip);
+                                }
+                                
+                                const tooltip = tooltipEl || document.getElementById('custom-tooltip');
+                                tooltip.style.left = (event.x + 15) + 'px';
+                                tooltip.style.top = (event.y + 35) + 'px';
+                                
+                                
+                                const hoveredTask = tasksAtTime.find(task => {
+                                    const taskY = this.scales.y.getPixelForValue(task.y);
+                                    return Math.abs(event.y - taskY) < 20;
+                                });
+
+                                if (hoveredTask) {
+                           
+                                    const statusColor = hoveredTask.status === 'Completed' ? '#2ecc71' :
+                                                      hoveredTask.status === 'In Progress' ? '#f1c40f' : '#e74c3c';
+                                    
+                                    let content = `
+                                        <div style="
+                                            border-left: 4px solid ${statusColor};
+                                            padding-left: 12px;
+                                            margin-bottom: 12px;
+                                        ">
+                                            <div style="
+                                                font-weight: bold;
+                                                color: #2c3e50;
+                                                font-size: 16px;
+                                                margin-bottom: 4px;
+                                            ">${hoveredTask.y}</div>
+                                            <div style="
+                                                color: ${statusColor};
+                                                font-size: 13px;
+                                                font-weight: 500;
+                                            ">${hoveredTask.status}</div>
+                                        </div>
+                                        <div style="
+                                            color: #666;
+                                            font-size: 13px;
+                                            line-height: 1.6;
+                                        ">
+                                            <div style="margin-bottom: 8px;">
+                                                <span style="color: #95a5a6; font-size: 12px;">Duration</span><br>
+                                                <span style="font-weight: 500;">${hoveredTask.duration} days</span>
+                                            </div>
+                                            <div style="margin-bottom: 8px;">
+                                                <span style="color: #95a5a6; font-size: 12px;">Timeline</span><br>
+                                                <span style="font-weight: 500;">${hoveredTask.x.toLocaleDateString()} - ${hoveredTask.x2.toLocaleDateString()}</span>
+                                            </div>
+                                            <div>
+                                                <span style="color: #95a5a6; font-size: 12px;">Team</span><br>
+                                                <span style="font-weight: 500;">${hoveredTask.team}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                    
+                                    tooltip.innerHTML = content;
+                                    tooltip.style.display = 'block';
+                                } else if (tooltipEl) {
+                                    tooltipEl.style.display = 'none';
+                                }
+                            } else if (tooltipEl) {
+                                tooltipEl.style.display = 'none';
+                            }
+                        }
+                    },
+                    onLeave: function() {
+                        const tooltipEl = document.getElementById('custom-tooltip');
+                        if (tooltipEl) {
+                            tooltipEl.style.display = 'none';
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM d'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Timeline',
+                                color: '#2c3e50',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {top: 10}
+                            },
+                            min: paddedStart,
+                            max: paddedEnd,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false,
+                                lineWidth: 1
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    size: 12
+                                },
+                                padding: 8
+                            },
+                            border: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#2c3e50',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                padding: 12
+                            },
+                            title: {
+                                display: true,
+                                text: 'Tasks',
+                                color: '#2c3e50',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {right: 10}
+                            },
+                            border: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                            titleColor: '#2c3e50',
+                            bodyColor: '#666',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 4,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].raw.y;
+                                },
+                                label: function(context) {
+                                    const task = context.raw;
+                                    const labels = [
+                                        `Duration: ${task.duration} days`,
+                                        `Start: ${task.x.toLocaleDateString()}`,
+                                        `End: ${task.x2.toLocaleDateString()}`,
+                                        `Status: ${task.status}`,
+                                        `Team: ${task.team}`
+                                    ];
+
+                                    if (task.subtasks && task.subtasks.length > 0) {
+                                        labels.push('');
+                                        labels.push('Subtasks:');
+                                        task.subtasks.forEach(subtask => {
+                                            labels.push(`• ${subtask.description} (${subtask.completed ? '✓' : '○'})`);
+                                        });
+                                    }
+
+                                    return labels;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+
+            Chart.register({
+                id: 'timeRange',
+                beforeDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const tasks = chart.data.datasets[0].data;
+                    
+                    tasks.forEach((task, index) => {
+                        const start = new Date(task.x);
+                        const end = new Date(task.x2);
+                        const xStart = chart.scales.x.getPixelForValue(start);
+                        const xEnd = chart.scales.x.getPixelForValue(end);
+                        const y = chart.scales.y.getPixelForValue(task.y);
+                   
+                        const gradient = ctx.createLinearGradient(xStart, y - 12, xEnd, y - 12);
+                        if (task.status === 'Completed') {
+                            gradient.addColorStop(0, 'rgba(46, 204, 113, 0.15)');
+                            gradient.addColorStop(1, 'rgba(46, 204, 113, 0.4)');
+                        } else if (task.status === 'In Progress') {
+                            gradient.addColorStop(0, 'rgba(241, 196, 15, 0.15)');
+                            gradient.addColorStop(1, 'rgba(241, 196, 15, 0.4)');
+                        } else {
+                            gradient.addColorStop(0, 'rgba(231, 76, 60, 0.15)');
+                            gradient.addColorStop(1, 'rgba(231, 76, 60, 0.4)');
+                        }
+                        
+                       
+                        const height = 24;
+                        const radius = height / 2;
+                        ctx.beginPath();
+                        ctx.moveTo(xStart + radius, y - height/2);
+                        ctx.lineTo(xEnd - radius, y - height/2);
+                        ctx.quadraticCurveTo(xEnd, y - height/2, xEnd, y);
+                        ctx.quadraticCurveTo(xEnd, y + height/2, xEnd - radius, y + height/2);
+                        ctx.lineTo(xStart + radius, y + height/2);
+                        ctx.quadraticCurveTo(xStart, y + height/2, xStart, y);
+                        ctx.quadraticCurveTo(xStart, y - height/2, xStart + radius, y - height/2);
+                        ctx.closePath();
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.fill();
+                        
+                      
+                        ctx.strokeStyle = task.status === 'Completed' ? 'rgba(46, 204, 113, 0.6)' :
+                                        task.status === 'In Progress' ? 'rgba(241, 196, 15, 0.6)' : 'rgba(231, 76, 60, 0.6)';
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    });
+                }
+            });
+        }
+
+        
+        document.getElementById('projectSelect').addEventListener('change', async function(e) {
+            const projectId = e.target.value;
+            if (projectId) {
+                const tasks = await fetchTasks(projectId);
+                updateProjectSummary(tasks);
+                createTimelineChart(tasks);
+                updateTaskDetails(tasks);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchProjects);
+    </script>
+</body>
+</html> 

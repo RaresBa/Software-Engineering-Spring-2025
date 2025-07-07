@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Team Lead Dashboard</title>
+    <link rel="stylesheet" href="../css/team_lead_view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+
+        window.onload = function() {
+            if (!sessionStorage.getItem('pageRefreshed')) {
+                sessionStorage.setItem('pageRefreshed', 'true');
+                window.location.reload();
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .tasks-section {
+            padding: 20px;
+        }
+        .tasks-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .tasks-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .tasks-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .tasks-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+        .tasks-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .subtask-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        .subtask-btn:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+        .subtask-count {
+            background: white;
+            color: #28a745;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-In-Progress {
+            color: #2196F3;
+        }
+        .status-Completed {
+            color: #4CAF50;
+        }
+        .status-Frozen {
+            color: #9C27B0;
+        }
+        .completed-tag {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        .toggle-arrow {
+            cursor: pointer;
+            margin-right: 8px;
+            color: #6c757d;
+        }
+        .subtask-row {
+            background-color: #f8f9fa;
+        }
+        .subtask-row td {
+            padding-left: 30px;
+        }
+        #g_id_signin {
+            margin-left: 10px;
+        }
+        #signout_button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        #signout_button:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+        .calendar-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            border-left: 4px solid #28a745;
+        }
+        .notification.error {
+            border-left: 4px solid #dc3545;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-actions button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .header-actions .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .header-actions .btn-primary:hover {
+            background-color: #45a049;
+        }
+        .header-actions .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        .header-actions .btn-danger:hover {
+            background-color: #da190b;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #subtaskCostList {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .subtask-cost-row {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .subtask-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .subtask-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        .subtask-type {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        .cost-info {
+            display: flex;
+            gap: 2rem;
+            justify-content: space-between;
+        }
+        .cost-section {
+            flex: 1;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .cost-section h4 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .update-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .update-btn:hover {
+            background: #218838;
+        }
+        .update-btn.error {
+            background: #dc3545;
+        }
+        .update-btn.success {
+            background: #28a745;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .costs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .costs-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .costs-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+        .costs-table tr:hover {
+            background: #f8f9fa;
+        }
+        .subtask-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+        }
+        .subtask-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+        .subtask-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .summary-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .summary-card h3 i {
+            font-size: 1.2em;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: #666;
+        }
+        .summary-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .summary-card.savings.has-value {
+            border-color: #4CAF50;
+            background: #f1f8e9;
+        }
+        .summary-card.savings.has-value .summary-value {
+            color: #2e7d32;
+        }
+        .summary-card.extra-cost.has-value {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        .summary-card.extra-cost.has-value .summary-value {
+            color: #c62828;
+        }
+        .summary-card.savings h3 i {
+            color: #4CAF50;
+        }
+        .summary-card.extra-cost h3 i {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>Accord - Team Lead Dashboard</h1>
+                <p id="userRole">Team Lead</p>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <div id="g_id_signin"></div>
+                    <button id="signout_button" style="display: none;" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                    <button onclick="viewTeamProgress()" class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> View Progress
+                    </button>
+                </div>
+                <a href="/dashboard" class="dashboard-btn">
+                    <i class="fas fa-home"></i> Return to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="tasks-section">
+                <h2>Team Tasks</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter">
+                            <option value="all">All</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Frozen">Frozen</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="priorityFilter">Priority:</label>
+                        <select id="priorityFilter">
+                            <option value="all">All</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Non-Priority">Non-Priority</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <button id="applyFilters" class="filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Team</th>
+                                <th>Calendar</th>
+                                <th>Subtasks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card" style="margin-top: 2rem;">
+            <div class="tasks-section">
+                <h2>Task Costs Overview</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="costSortBy">Sort by:</label>
+                        <select id="costSortBy">
+                            <option value="cost">Total Cost</option>
+                            <option value="name">Task Name</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button id="applyCostSort" class="filter-btn">
+                            <i class="fas fa-sort"></i> Sort
+                        </button>
+                    </div>
+                </div>
+                <div id="taskCostsContainer">
+                    <table class="costs-table">
+                        <thead>
+                            <tr>
+                                <th>Task Description</th>
+                                <th>Estimated Service Subtasks Cost</th>
+                                <th>Estimated Goods Subtasks Cost</th>
+                                <th>Total Estimated Cost</th>
+                                <th>Actual Service Subtasks Cost</th>
+                                <th>Actual Goods Subtasks Cost</th>
+                                <th>Total Actual Cost</th>
+                                <th>Enter Actual Cost of Subtasks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costs-table-body">
+         
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card" style="margin-top: 2rem;">
+            <div class="tasks-section">
+                <h2>Project Cost Summary</h2>
+                <div id="projectSummaryContainer">
+                    <div class="summary-grid">
+                        <div class="summary-card savings">
+                            <h3><i class="fas fa-piggy-bank"></i> Project Savings</h3>
+                            <div class="summary-value" id="projectSavings">$0.00</div>
+                            <p class="summary-description">Total amount saved when actual costs are below estimated costs</p>
+                        </div>
+                        <div class="summary-card extra-cost">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Project Extra Cost</h3>
+                            <div class="summary-value" id="projectExtraCost">$0.00</div>
+                            <p class="summary-description">Total additional cost when actual costs exceed estimated costs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="subtaskCostModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" id="closeSubtaskCostModal">&times;</span>
+            <h2>Enter Actual Cost for Subtasks</h2>
+            <div id="subtaskCostList">
+      
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/team_lead_script.js"></script>
+    <script>
+      
+        async function calculateAndDisplayTaskCosts(tasks) {
+            const costsTableBody = document.getElementById('costs-table-body');
+            costsTableBody.innerHTML = '';
+
+            for (const task of tasks) {
+                let estimatedServiceCost = 0;
+                let estimatedGoodsCost = 0;
+                let actualServiceCost = 0;
+                let actualGoodsCost = 0;
+
+
+                if (task.subtasks && task.subtasks.length > 0) {
+                    task.subtasks.forEach(subtask => {
+                        if (subtask.type === 'Service' && subtask.service) {
+                            estimatedServiceCost += subtask.service.estimatedCost || 0;
+                            actualServiceCost += subtask.service.actualCost || 0;
+                        } else if (subtask.type === 'Good' && subtask.goods) {
+                            estimatedGoodsCost += subtask.goods.estimatedCost || 0;
+                            actualGoodsCost += subtask.goods.actualCost || 0;
+                        }
+                    });
+                }
+
+                const totalEstimatedCost = estimatedServiceCost + estimatedGoodsCost;
+                const totalActualCost = actualServiceCost + actualGoodsCost;
+
+             
+                const row = document.createElement('tr');
+                row.setAttribute('data-task-id', task._id);
+                row.innerHTML = `
+                    <td>${task.description}</td>
+                    <td style="font-weight: normal">$${estimatedServiceCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${estimatedGoodsCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${totalEstimatedCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${actualServiceCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${actualGoodsCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${totalActualCost.toFixed(2)}</td>
+                    <td>
+                        <button class="subtask-btn" onclick="viewTaskSubtasks('${task._id}')" style="display: flex !important; opacity: 1 !important;">
+                            <i class="fas fa-edit"></i> Enter Actual Cost
+                            <span class="subtask-count">${task.subtasks ? task.subtasks.length : 0}</span>
+                        </button>
+                    </td>
+                `;
+                costsTableBody.appendChild(row);
+            }
+
+
+            costsTableBody.style.display = 'none';
+            costsTableBody.offsetHeight; 
+            costsTableBody.style.display = '';
+        }
+
+    
+        async function loadTasksAndCosts() {
+            try {
+                const tasks = await fetchTasks();
+                await calculateAndDisplayTaskCosts(tasks);
+                await updateProjectSummary();
+                
+       
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            const buttons = document.querySelectorAll('.subtask-btn');
+                            buttons.forEach(button => {
+                                button.style.display = 'flex';
+                                button.style.opacity = '1';
+                            });
+                        }
+                    });
+                });
+
+                const costsTableBody = document.getElementById('costs-table-body');
+                observer.observe(costsTableBody, { childList: true, subtree: true });
+            } catch (error) {
+                console.error('Error loading tasks and costs:', error);
+            }
+        }
+
+     
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasksAndCosts();
+        });
+
+        document.getElementById('applyCostSort').addEventListener('click', function() {
+            const sortBy = document.getElementById('costSortBy').value;
+            const costsTableBody = document.getElementById('costs-table-body');
+            const rows = Array.from(costsTableBody.getElementsByTagName('tr'));
+
+            rows.sort((a, b) => {
+                if (sortBy === 'cost') {
+                    const costA = parseFloat(a.cells[3].textContent.replace('$', '')); 
+                    const costB = parseFloat(b.cells[3].textContent.replace('$', ''));
+                    return costB - costA;
+                } else {
+                    const nameA = a.cells[0].textContent;
+                    const nameB = b.cells[0].textContent;
+                    return nameA.localeCompare(nameB);
+                }
+            });
+
+            costsTableBody.innerHTML = '';
+            rows.forEach(row => costsTableBody.appendChild(row));
+        });
+
+        async function updateProjectSummary() {
+            try {
+                const projectId = localStorage.getItem('project_id');
+                const response = await fetch(`http://localhost:5555/api/tasks?project_id=${projectId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
+                const tasks = await response.json();
+
+                let totalEstimatedCost = 0;
+                let totalActualCost = 0;
+
+                tasks.forEach(task => {
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        task.subtasks.forEach(subtask => {
+                            if (subtask.type === 'Service' && subtask.service) {
+                                totalEstimatedCost += subtask.service.estimatedCost || 0;
+                                totalActualCost += subtask.service.actualCost || 0;
+                            } else if (subtask.type === 'Good' && subtask.goods) {
+                                totalEstimatedCost += subtask.goods.estimatedCost || 0;
+                                totalActualCost += subtask.goods.actualCost || 0;
+                            }
+                        });
+                    }
+                });
+
+      
+                const savings = Math.max(0, totalEstimatedCost - totalActualCost);
+                const extraCost = Math.max(0, totalActualCost - totalEstimatedCost);
+
+             
+                document.getElementById('projectSavings').textContent = `$${savings.toFixed(2)}`;
+                document.getElementById('projectExtraCost').textContent = `$${extraCost.toFixed(2)}`;
+
+                const savingsCard = document.querySelector('.summary-card.savings');
+                const extraCostCard = document.querySelector('.summary-card.extra-cost');
+
+                if (savings > 0) {
+                    savingsCard.classList.add('has-value');
+                } else {
+                    savingsCard.classList.remove('has-value');
+                }
+
+                if (extraCost > 0) {
+                    extraCostCard.classList.add('has-value');
+                } else {
+                    extraCostCard.classList.remove('has-value');
+                }
+
+            } catch (error) {
+                console.error('Error updating project summary:', error);
+            }
+        }
+
+        async function viewTaskSubtasks(taskId) {
+            try {
+                const response = await fetch(`http://localhost:5555/api/tasks/${taskId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch task details');
+                }
+                const task = await response.json();
+                
+                const modal = document.getElementById('subtaskCostModal');
+                const subtaskList = document.getElementById('subtaskCostList');
+                subtaskList.innerHTML = '';
+
+                if (!task.subtasks || task.subtasks.length === 0) {
+                    subtaskList.innerHTML = '<p>No subtasks found for this task.</p>';
+                } else {
+                    for (const subtask of task.subtasks) {
+                        const subtaskDiv = document.createElement('div');
+                        subtaskDiv.className = 'subtask-cost-row';
+                        
+                        const estimatedCost = subtask.type === 'Service' 
+                            ? subtask.service.estimatedCost 
+                            : subtask.goods.estimatedCost;
+                        const actualCost = subtask.type === 'Service'
+                            ? subtask.service.actualCost
+                            : subtask.goods.actualCost;
+
+                        if (subtask.type === 'Service') {
+                            let teamRate = 0;
+                            let costPerPerson = 0;
+                            try {
+                                
+                                const projectId = localStorage.getItem('project_id');
+                                const teamsResponse = await fetch(`http://localhost:5555/api/tasks/project/${projectId}/teams`);
+                                if (teamsResponse.ok) {
+                                    const teams = await teamsResponse.json();
+                                    const team = teams.find(t => t.TeamID === task.team_id);
+                                    if (team) {
+                                        teamRate = team.rate || 0;
+                                        costPerPerson = team.costPerPerson || 0;
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error fetching team details:', error);
+                            }
+
+                            subtaskDiv.innerHTML = `
+                                <div class="subtask-header">
+                                    <h3>Subtask ${task.subtasks.indexOf(subtask) + 1} <span class="subtask-type">(Service)</span></h3>
+                                </div>
+                                <div class="cost-info">
+                                    <div class="cost-section">
+                                        <h4>Estimated Cost</h4>
+                                        <p>$${estimatedCost.toFixed(2)}</p>
+                                        <div class="estimated-details">
+                                            <p>Hours: ${subtask.service.estimatedHours || 0}</p>
+                                            <p>People: ${subtask.service.estimatedPeople || 0}</p>
+                                            <p>Cost per Person: $${costPerPerson}</p>
+                                        </div>
+                                    </div>
+                                    <div class="cost-section">
+                                        <h4>Actual Cost</h4>
+                                        <div class="input-group">
+                                            <label>Hours:</label>
+                                            <input type="number" 
+                                                   id="actualHours-${subtask._id}" 
+                                                   value="${subtask.service.actualHours || ''}" 
+                                                   step="0.5" 
+                                                   min="0"
+                                                   onchange="calculateServiceCost('${subtask._id}', ${teamRate}, ${costPerPerson})"
+                                                   placeholder="Enter hours">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Number of People:</label>
+                                            <input type="number" 
+                                                   id="actualPeople-${subtask._id}" 
+                                                   value="${subtask.service.actualPeople || ''}" 
+                                                   step="1" 
+                                                   min="0"
+                                                   onchange="calculateServiceCost('${subtask._id}', ${teamRate}, ${costPerPerson})"
+                                                   placeholder="Enter number of people">
+                                        </div>
+                                        <div class="total-cost">
+                                            <label>Total Cost:</label>
+                                            <p id="totalCost-${subtask._id}">$${actualCost ? actualCost.toFixed(2) : '0.00'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="updateSubtaskCost('${taskId}', '${subtask._id}', ${teamRate}, ${costPerPerson})" class="update-btn">
+                                    <i class="fas fa-save"></i> Update Cost
+                                </button>
+                            `;
+                        } else {
+                            subtaskDiv.innerHTML = `
+                                <div class="subtask-header">
+                                    <h3>Subtask ${task.subtasks.indexOf(subtask) + 1} <span class="subtask-type">(Goods)</span></h3>
+                                </div>
+                                <div class="cost-info">
+                                    <div class="cost-section">
+                                        <h4>Estimated Cost</h4>
+                                        <p>$${estimatedCost.toFixed(2)}</p>
+                                        <div class="estimated-details">
+                                            <p>Quantity: ${subtask.goods.estimatedQuantity || 0}</p>
+                                            <p>Price per Piece: $${subtask.goods.estimatedPricePerPiece || 0}</p>
+                                        </div>
+                                    </div>
+                                    <div class="cost-section">
+                                        <h4>Actual Cost</h4>
+                                        <div class="input-group">
+                                            <label>Quantity:</label>
+                                            <input type="number" 
+                                                   id="actualQuantity-${subtask._id}" 
+                                                   value="${subtask.goods.actualQuantity || ''}" 
+                                                   step="1" 
+                                                   min="0"
+                                                   onchange="calculateGoodsCost('${subtask._id}')"
+                                                   placeholder="Enter quantity">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Price per Piece:</label>
+                                            <input type="number" 
+                                                   id="actualPricePerPiece-${subtask._id}" 
+                                                   value="${subtask.goods.actualPricePerPiece || ''}" 
+                                                   step="0.01" 
+                                                   min="0"
+                                                   onchange="calculateGoodsCost('${subtask._id}')"
+                                                   placeholder="Enter price per piece">
+                                        </div>
+                                        <div class="total-cost">
+                                            <label>Total Cost:</label>
+                                            <p id="totalCost-${subtask._id}">$${actualCost ? actualCost.toFixed(2) : '0.00'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="updateSubtaskCost('${taskId}', '${subtask._id}')" class="update-btn">
+                                    <i class="fas fa-save"></i> Update Cost
+                                </button>
+                            `;
+                        }
+                        subtaskList.appendChild(subtaskDiv);
+                    }
+                }
+
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching task details:', error);
+                const modal = document.getElementById('subtaskCostModal');
+                const subtaskList = document.getElementById('subtaskCostList');
+                subtaskList.innerHTML = `
+                    <div class="error-message">
+                        <p>Unable to load subtask details. Please try again later.</p>
+                        <button onclick="viewTaskSubtasks('${taskId}')" class="retry-btn">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
+                `;
+                modal.style.display = 'block';
+            }
+        }
+
+        function calculateServiceCost(subtaskId, teamRate, costPerPerson) {
+            const hours = parseFloat(document.getElementById(`actualHours-${subtaskId}`).value) || 0;
+            const people = parseInt(document.getElementById(`actualPeople-${subtaskId}`).value) || 0;
+            
+         
+            const laborCost = hours * people * teamRate;
+            const personnelCost = people * costPerPerson;
+            const totalCost = laborCost + personnelCost;
+            
+            document.getElementById(`totalCost-${subtaskId}`).textContent = `$${totalCost.toFixed(2)}`;
+        }
+
+        
+        function calculateGoodsCost(subtaskId) {
+            const quantity = parseFloat(document.getElementById(`actualQuantity-${subtaskId}`).value) || 0;
+            const pricePerPiece = parseFloat(document.getElementById(`actualPricePerPiece-${subtaskId}`).value) || 0;
+            const totalCost = quantity * pricePerPiece;
+            document.getElementById(`totalCost-${subtaskId}`).textContent = `$${totalCost.toFixed(2)}`;
+        }
+
+      
+        async function updateSubtaskCost(taskId, subtaskId, teamRate, costPerPerson) {
+            try {
+                let actualCost;
+                const subtaskType = document.querySelector(`#actualHours-${subtaskId}`) ? 'Service' : 'Goods';
+
+                if (subtaskType === 'Service') {
+                    const hours = parseFloat(document.getElementById(`actualHours-${subtaskId}`).value);
+                    const people = parseInt(document.getElementById(`actualPeople-${subtaskId}`).value);
+
+                    if (isNaN(hours) || isNaN(people) || hours < 0 || people < 0) {
+                        alert('Please enter valid values for hours and people.');
+                        return;
+                    }
+
+                    const laborCost = hours * people * teamRate;
+                    const personnelCost = people * costPerPerson;
+                    actualCost = laborCost + personnelCost;
+
+                    const response = await fetch(`http://localhost:5555/api/tasks/${taskId}/subtasks/${subtaskId}/actual`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            service: {
+                                actualHours: hours,
+                                actualPeople: people,
+                                actualCost: actualCost
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update subtask cost');
+                    }
+
+                    const updateBtn = document.querySelector(`#actualHours-${subtaskId}`).closest('.subtask-cost-row').querySelector('.update-btn');
+                    updateBtn.classList.add('success');
+                    updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated';
+                    
+                    await calculateAndDisplayTaskCosts(await fetchTasks());
+                    await updateProjectSummary();
+
+                    setTimeout(() => {
+                        updateBtn.classList.remove('success');
+                        updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Cost';
+                    }, 2000);
+
+                } else {
+                    const quantity = parseFloat(document.getElementById(`actualQuantity-${subtaskId}`).value);
+                    const pricePerPiece = parseFloat(document.getElementById(`actualPricePerPiece-${subtaskId}`).value);
+
+                    if (isNaN(quantity) || isNaN(pricePerPiece) || quantity < 0 || pricePerPiece < 0) {
+                        alert('Please enter valid values for quantity and price per piece.');
+                        return;
+                    }
+
+                    actualCost = quantity * pricePerPiece;
+
+                    const response = await fetch(`http://localhost:5555/api/tasks/${taskId}/subtasks/${subtaskId}/actual`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            goods: {
+                                actualQuantity: quantity,
+                                actualPricePerPiece: pricePerPiece,
+                                actualCost: actualCost
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update subtask cost');
+                    }
+
+         
+                    const updateBtn = document.querySelector(`#actualQuantity-${subtaskId}`).closest('.subtask-cost-row').querySelector('.update-btn');
+                    updateBtn.classList.add('success');
+                    updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated';
+                    
+     
+                    await calculateAndDisplayTaskCosts(await fetchTasks());
+                    await updateProjectSummary();
+
+                    setTimeout(() => {
+                        updateBtn.classList.remove('success');
+                        updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Cost';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error updating subtask cost:', error);
+                alert('Failed to update cost. Please try again.');
+            }
+        }
+
+
+        document.getElementById('closeSubtaskCostModal').addEventListener('click', function() {
+            document.getElementById('subtaskCostModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('subtaskCostModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+
+        async function fetchTasks() {
+            const projectId = localStorage.getItem('project_id');
+            const response = await fetch(`http://localhost:5555/api/tasks?project_id=${projectId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
+            }
+            return await response.json();
+        }
+    </script>
+</body>
+</html> 

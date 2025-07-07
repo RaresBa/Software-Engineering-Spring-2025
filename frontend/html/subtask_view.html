@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Subtask View</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="task-view-container">
+        <div class="header-actions">
+            <a href="/task_view.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Tasks
+            </a>
+            <button class="add-subtask-btn" onclick="window.location.href='/subtask.html'">
+                <i class="fas fa-plus"></i> Add Subtask
+            </button>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="all">All</option>
+                    <option value="completed">Completed</option>
+                    <option value="in-progress">In Progress</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priorityFilter">Priority:</label>
+                <select id="priorityFilter">
+                    <option value="all">All</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Type:</label>
+                <select id="typeFilter">
+                    <option value="all">All</option>
+                    <option value="service">Service</option>
+                    <option value="good">Good</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="filter-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+            <button id="applyFilters" class="apply-btn">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+        </div>
+
+                <div class="sort-options">
+            <select id="sortBy">
+                <option value="priority">Priority</option>
+                <option value="status">Status</option>
+                <option value="startTime">Start Date</option>
+                <option value="endTime">End Date</option>
+                    </select>
+                    <button id="sortDirection" class="sort-btn">
+                        <i class="fas fa-sort-amount-down"></i>
+                    </button>
+                </div>
+
+        <div id="subtasksList" class="subtasks-list">
+         
+        </div>
+    </div>
+
+    <script src="../js/subtask_view.js"></script>
+</body>
+</html> 

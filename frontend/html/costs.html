@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Task Cost Analysis</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .cost-container {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .cost-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cost-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cost-card.primary { border-left: 4px solid #4CAF50; }
+        .cost-card.secondary { border-left: 4px solid #2196F3; }
+        .cost-card.warning { border-left: 4px solid #FF9800; }
+
+        .cost-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .progress-container {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .primary .progress-bar { background: #4CAF50; }
+        .secondary .progress-bar { background: #2196F3; }
+        .warning .progress-bar { background: #FF9800; }
+
+        .subtask-list {
+            margin-top: 30px;
+        }
+
+        .subtask-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .subtask-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cost-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .cost-detail-item {
+            text-align: center;
+        }
+
+        .cost-detail-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .cost-detail-value {
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .return-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .return-button:hover {
+            background: #45a049;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <a href="final.html" class="return-button">
+        <i class="fas fa-arrow-left"></i>
+        Return to Main
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Cost Analysis</h1>
+            <p class="subtitle">Track and analyze costs for tasks and subtasks</p>
+        </div>
+
+        <div class="content">
+            <div class="form-group">
+                <label for="taskSelect">Select Task</label>
+                <select id="taskSelect">
+                    <option value="">Choose a task...</option>
+                </select>
+            </div>
+
+            <div id="costContent" style="display: none;">
+                <div class="cost-container">
+                    <div class="cost-summary">
+                        <div class="cost-card primary">
+                            <h3>Labor Costs</h3>
+                            <div class="cost-amount" id="laborCost">$0</div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="laborProgress"></div>
+                            </div>
+                        </div>
+                        <div class="cost-card secondary">
+                            <h3>Material Costs</h3>
+                            <div class="cost-amount" id="materialCost">$0</div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="materialProgress"></div>
+                            </div>
+                        </div>
+                        <div class="cost-card warning">
+                            <h3>Additional Costs</h3>
+                            <div class="cost-amount" id="additionalCost">$0</div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="additionalProgress"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subtask-list" id="subtaskList">
+                        <!-- Subtasks will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>Cost Distribution</h2>
+                    <div class="charts-grid">
+                        <div class="chart-wrapper">
+                            <canvas id="mainCostChart"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="subtaskCostChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+
+        function generateCosts(complexity = 1) {
+            const baseCost = Math.floor((Math.random() * 5000 + 2000) * complexity);
+            return {
+                labor: Math.floor(baseCost * (0.4 + Math.random() * 0.2)),
+                material: Math.floor(baseCost * (0.2 + Math.random() * 0.2)),
+                additional: Math.floor(baseCost * (0.1 + Math.random() * 0.1))
+            };
+        }
+
+     
+        function updateProgressBars(costs) {
+            const total = costs.labor + costs.material + costs.additional;
+            document.getElementById('laborProgress').style.width = `${(costs.labor / total) * 100}%`;
+            document.getElementById('materialProgress').style.width = `${(costs.material / total) * 100}%`;
+            document.getElementById('additionalProgress').style.width = `${(costs.additional / total) * 100}%`;
+        }
+
+
+        let mainCostChart, subtaskCostChart;
+
+        function initializeCharts() {
+            const mainCtx = document.getElementById('mainCostChart').getContext('2d');
+            const subtaskCtx = document.getElementById('subtaskCostChart').getContext('2d');
+
+            mainCostChart = new Chart(mainCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Labor', 'Material', 'Additional'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FF9800']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            subtaskCostChart = new Chart(subtaskCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: []
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+  
+        function updateCharts(taskCosts, subtasks) {
+  
+            mainCostChart.data.datasets[0].data = [
+                taskCosts.labor,
+                taskCosts.material,
+                taskCosts.additional
+            ];
+            mainCostChart.update();
+
+     
+            const subtaskLabels = [];
+            const subtaskData = [];
+            const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63', '#00BCD4'];
+
+            subtasks.forEach((subtask, index) => {
+                const subtaskCosts = generateCosts(1);
+                const total = subtaskCosts.labor + subtaskCosts.material + subtaskCosts.additional;
+                subtaskLabels.push(subtask.description);
+                subtaskData.push(total);
+            });
+
+            subtaskCostChart.data.labels = subtaskLabels;
+            subtaskCostChart.data.datasets[0].data = subtaskData;
+            subtaskCostChart.data.datasets[0].backgroundColor = colors.slice(0, subtasks.length);
+            subtaskCostChart.update();
+        }
+
+        async function loadTaskCosts() {
+            const taskId = document.getElementById('taskSelect').value;
+            const costContent = document.getElementById('costContent');
+            
+            if (!taskId) {
+                costContent.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5555/api/tasks/${taskId}`);
+                if (!response.ok) throw new Error('Failed to load task');
+                const task = await response.json();
+                costContent.style.display = 'block';
+                const taskCosts = generateCosts(1.5);
+                
+                document.getElementById('laborCost').textContent = formatCurrency(taskCosts.labor);
+                document.getElementById('materialCost').textContent = formatCurrency(taskCosts.material);
+                document.getElementById('additionalCost').textContent = formatCurrency(taskCosts.additional);
+                
+                updateProgressBars(taskCosts);
+
+     
+                updateCharts(taskCosts, task.subtasks || []);
+
+        
+                const subtaskList = document.getElementById('subtaskList');
+                subtaskList.innerHTML = '';
+
+                if (task.subtasks && task.subtasks.length > 0) {
+                    task.subtasks.forEach(subtask => {
+                        const subtaskCosts = generateCosts(1);
+                        const total = subtaskCosts.labor + subtaskCosts.material + subtaskCosts.additional;
+
+                        const subtaskEl = document.createElement('div');
+                        subtaskEl.className = 'subtask-item';
+                        subtaskEl.innerHTML = `
+                            <div class="subtask-header">
+                                <h3>${subtask.description}</h3>
+                                <span class="total-cost">${formatCurrency(total)}</span>
+                            </div>
+                            <div class="cost-details">
+                                <div class="cost-detail-item">
+                                    <div class="cost-detail-label">Labor</div>
+                                    <div class="cost-detail-value">${formatCurrency(subtaskCosts.labor)}</div>
+                                </div>
+                                <div class="cost-detail-item">
+                                    <div class="cost-detail-label">Material</div>
+                                    <div class="cost-detail-value">${formatCurrency(subtaskCosts.material)}</div>
+                                </div>
+                                <div class="cost-detail-item">
+                                    <div class="cost-detail-label">Additional</div>
+                                    <div class="cost-detail-value">${formatCurrency(subtaskCosts.additional)}</div>
+                                </div>
+                            </div>
+                        `;
+                        subtaskList.appendChild(subtaskEl);
+                    });
+                } else {
+                    subtaskList.innerHTML = '<p>No subtasks found for this task.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading task costs:', error);
+                costContent.style.display = 'none';
+            }
+        }
+
+   
+        async function loadTasks() {
+            const taskSelect = document.getElementById('taskSelect');
+            
+            try {
+                const response = await fetch('http://localhost:5555/api/tasks');
+                if (!response.ok) throw new Error('Failed to load tasks');
+                const tasks = await response.json();
+
+    
+                const priorityTasks = tasks.filter(task => task.priority === 'Priority');
+                const nonPriorityTasks = tasks.filter(task => task.priority === 'Non-Priority');
+
+       
+                if (priorityTasks.length > 0) {
+                    const priorityGroup = document.createElement('optgroup');
+                    priorityGroup.label = 'Priority Tasks';
+                    priorityTasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task._id;
+                        option.textContent = task.description;
+                        priorityGroup.appendChild(option);
+                    });
+                    taskSelect.appendChild(priorityGroup);
+                }
+
+        
+                if (nonPriorityTasks.length > 0) {
+                    const nonPriorityGroup = document.createElement('optgroup');
+                    nonPriorityGroup.label = 'Non-Priority Tasks';
+                    nonPriorityTasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task._id;
+                        option.textContent = task.description;
+                        nonPriorityGroup.appendChild(option);
+                    });
+                    taskSelect.appendChild(nonPriorityGroup);
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                taskSelect.innerHTML = '<option value="">Error loading tasks</option>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            loadTasks();
+            document.getElementById('taskSelect').addEventListener('change', loadTaskCosts);
+        });
+    </script>
+</body>
+</html> 

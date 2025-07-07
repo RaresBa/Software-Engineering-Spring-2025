@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord -Task Progress</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/progress.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .return-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .return-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:void(0)" onclick="window.history.back()" class="return-button">
+        <i class="fas fa-arrow-left"></i>
+        Return to Main
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Task Progress</h1>
+            <p class="subtitle">Track your task completion and subtask progress</p>
+        </div>
+
+        <div class="card">
+            <div class="task-selector">
+                <label for="taskSelector">Select a task:</label>
+                <select id="taskSelector">
+                    <option disabled selected>Choose a task...</option>
+                </select>
+            </div>
+
+            <div id="progressContainer" style="display: none;">
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <h3>Overall Progress</h3>
+                        <span id="progressLabel" class="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <div id="subtasksList" class="subtasks-section">
+                    <h3><i class="fas fa-tasks"></i> Subtasks</h3>
+                    <div class="subtasks-container">
+          
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/progress.js"></script>
+</body>
+</html>

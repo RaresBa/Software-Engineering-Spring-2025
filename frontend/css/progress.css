@@ -1,0 +1,146 @@
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.subtitle {
+    color: var(--secondary-color);
+    margin-top: -15px;
+}
+
+.card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.task-selector {
+    margin-bottom: 30px;
+}
+
+.task-selector label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.task-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: white;
+    font-size: 16px;
+}
+
+.progress-section {
+    margin-bottom: 30px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progress-percentage {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.progress-bar-container {
+    height: 20px;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.subtasks-section {
+    margin-top: 30px;
+}
+
+.subtasks-container {
+    margin-top: 15px;
+}
+
+.subtask-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.subtask-item:last-child {
+    border-bottom: none;
+}
+
+.subtask-status {
+    margin-right: 15px;
+    color: var(--secondary-color);
+}
+
+.subtask-status.completed {
+    color: var(--success-color);
+}
+
+.subtask-content {
+    flex: 1;
+}
+
+.subtask-description {
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.subtask-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+}
+
+.subtask-time i,
+.subtask-priority i {
+    margin-right: 5px;
+}
+
+.priority-high {
+    color: var(--danger-color);
+}
+
+.no-subtasks {
+    text-align: center;
+    padding: 30px;
+    color: var(--secondary-color);
+}
+
+.no-subtasks i {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-message i {
+    font-size: 1.2em;
+} 

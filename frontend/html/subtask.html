@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Accord - Subtask Manager</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="../js/script.js"></script>
+    <style>
+        .return-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .return-button:hover {
+            background: #45a049;
+        }
+
+        .header button:hover {
+            background-color: #45a049;
+        }
+
+        /* Filter styles */
+        .filters {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+            font-size: 14px;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        #applyFilters {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        #applyFilters:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:void(0)" onclick="returnToMain()" class="return-button">
+        <i class="fas fa-arrow-left"></i>
+        Return to Main
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tasks"></i> Subtask Manager</h1>
+            <p class="subtitle">Manage your subtasks</p>
+        </div>
+
+        <div class="card">
+            <div class="task-form">
+                <h2>Add New Subtask</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Start Time</label>
+                        <input type="datetime-local" id="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">End Time</label>
+                        <input type="datetime-local" id="endTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" required>
+                            <option value="Priority">Priority</option>
+                            <option value="Non-Priority">Non-Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="type" value="Service" checked>
+                                <span class="radio-text">Service</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="type" value="Good">
+                                <span class="radio-text">Good</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="serviceFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="estimatedHours">Estimated Hours</label>
+                            <input type="number" id="estimatedHours" min="0" step="0.5" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estimatedPeople">Estimated People</label>
+                            <input type="number" id="estimatedPeople" min="1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Estimated Total Cost</label>
+                            <div id="serviceEstimatedCost" class="calculated-cost">$0.00</div>
+                        </div>
+                    </div>
+
+                    <div id="goodFields" class="form-group" style="display: none;">
+                        <label for="estimatedQuantity">Estimated Quantity</label>
+                        <input type="number" id="estimatedQuantity" min="1" required placeholder="Enter quantity">
+                        
+                        <label for="estimatedPricePerPiece">Estimated Price per Piece</label>
+                        <input type="number" id="estimatedPricePerPiece" min="0" step="0.01" required placeholder="Enter price per piece">
+                        
+                        <label>Estimated Total Cost</label>
+                        <div id="goodEstimatedCost" class="calculated-cost">$0.00</div>
+                    </div>
+
+                    <button type="button" id="add-subtask-btn" class="btn btn-primary">Add Subtask</button>
+                </form>
+            </div>
+
+            <div class="tasks-list">
+                <h2>Subtasks</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter">
+                            <option value="all">All</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="priorityFilter">Priority:</label>
+                        <select id="priorityFilter">
+                            <option value="all">All</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Non-Priority">Non-Priority</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="typeFilter">Type:</label>
+                        <select id="typeFilter">
+                            <option value="all">All</option>
+                            <option value="Service">Service</option>
+                            <option value="Good">Good</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <button id="applyFilters" class="filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+                <div id="tasksContainer">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Type</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                   
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+     
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeRadios = document.querySelectorAll('input[name="type"]');
+            const serviceFields = document.getElementById('serviceFields');
+            const goodFields = document.getElementById('goodFields');
+
+        
+            const checkedType = document.querySelector('input[name="type"]:checked').value;
+            if (checkedType === 'Service') {
+                serviceFields.style.display = 'block';
+                goodFields.style.display = 'none';
+            } else {
+                serviceFields.style.display = 'none';
+                goodFields.style.display = 'block';
+            }
+
+            typeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'Service') {
+                        serviceFields.style.display = 'block';
+                        goodFields.style.display = 'none';
+                    } else {
+                        serviceFields.style.display = 'none';
+                        goodFields.style.display = 'block';
+                    }
+                });
+            });
+
+            setTimeout(() => {
+                document.getElementById('applyFilters').click();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

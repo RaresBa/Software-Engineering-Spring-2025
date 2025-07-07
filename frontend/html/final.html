@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Accord - Task Manager</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script defer src="../js/script.js"></script>
+    <style>
+        .home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #45a049;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .home-button:hover {
+            background: #388E3C;
+        }
+
+        .auth-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .auth-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .progress-btn, .costs-btn, .signout-btn {
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .progress-btn:hover, .costs-btn:hover, .signout-btn:hover {
+            background: #4a148c;
+        }
+
+        #g_id_signin {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .role-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .notification-content {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            font-size: 0.9em;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .success-toast i {
+            font-size: 1.2em;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/dashboard" class="home-button">
+        <i class="fas fa-home"></i>
+        Home
+    </a>
+
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tasks"></i> Accord</h1>
+            <p class="subtitle">Manage your tasks and activities</p>
+        </div>
+
+        <div class="auth-section">
+            <div id="g_id_signin"></div>
+            <div class="auth-buttons">
+                <button id="signout_button" class="signout-btn" style="display:none;">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+                <button onclick="window.location.href='/html/progress.html?project_id=' + localStorage.getItem('project_id')" class="progress-btn">
+                    <i class="fas fa-chart-line"></i> View Task Progress
+                </button>
+                <button type="button" onclick="document.getElementById('costsSection').scrollIntoView({behavior:'smooth'});" class="costs-btn">
+                    <i class="fas fa-money-bill-wave"></i> View Costs
+                </button>
+                <button type="button" onclick="document.getElementById('budgetSection').scrollIntoView({behavior:'smooth'});" class="costs-btn">
+                    <i class="fas fa-wallet"></i> View Budget
+                </button>
+                <button id="notifyTeamLeaderBtn" class="progress-btn" style="background: #4CAF50;">
+                    <i class="fas fa-bell"></i> Notify Team Leader
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="taskFormContainer">
+         
+            </div>
+
+            <div class="tasks-list">
+                <h2 id="tasksHeading">Your Tasks</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter">
+                            <option value="all">All</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Frozen">Frozen</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="priorityFilter">Priority:</label>
+                        <select id="priorityFilter">
+                            <option value="all">All</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Non-Priority">Non-Priority</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate">
+                    </div>
+
+                    <div class="filter-group">
+                        <button id="applyFilters" class="filter-btn">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+                <div id="tasksContainer">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Team</th>
+                                <th>Calendar</th>
+                                <th>Delete</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="costsSection" class="card" style="margin-top: 2rem;">
+            <div class="tasks-list">
+                <h2>Task Costs Overview</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="costSortBy">Sort by:</label>
+                        <select id="costSortBy">
+                            <option value="cost">Total Cost</option>
+                            <option value="name">Task Name</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button id="applyCostSort" class="filter-btn">
+                            <i class="fas fa-sort"></i> Sort
+                        </button>
+                    </div>
+                </div>
+                <div id="taskCostsContainer">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>Task Description</th>
+                                <th>Estimated Service Subtasks Cost</th>
+                                <th>Estimated Goods Subtasks Cost</th>
+                                <th>Total Estimated Cost</th>
+                                <th>Actual Service Subtasks Cost</th>
+                                <th>Actual Goods Subtasks Cost</th>
+                                <th>Total Actual Cost</th>
+                                <th>Enter Actual Cost of Subtasks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costs-table-body">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+       
+        <div id="budgetSection" class="card" style="margin-top: 2rem;">
+            <div class="tasks-list">
+                <h2>Project Cost Summary</h2>
+                <div id="projectSummaryContainer">
+                    <div class="summary-grid">
+                        <div class="summary-card savings">
+                            <h3><i class="fas fa-piggy-bank"></i> Project Savings</h3>
+                            <div class="summary-value" id="projectSavings">$0.00</div>
+                            <p class="summary-description">Total amount saved when actual costs are below estimated costs</p>
+                        </div>
+                        <div class="summary-card extra-cost">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Project Extra Cost</h3>
+                            <div class="summary-value" id="projectExtraCost">$0.00</div>
+                            <p class="summary-description">Total additional cost when actual costs exceed estimated costs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userRole = "{{ role }}";  
+        console.log('User Role:', userRole); 
+
+      
+        const tasksHeading = document.getElementById('tasksHeading');
+        if (userRole === 'Project Manager') {
+            tasksHeading.textContent = 'Project Tasks';
+        } else if (userRole === 'Team Lead') {
+            tasksHeading.textContent = 'Your Team\'s Tasks';
+        }
+
+    
+        const isProjectManager = userRole === 'Project Manager';
+        console.log('Is Project Manager:', isProjectManager);
+
+        const taskFormContainer = document.getElementById('taskFormContainer');
+        if (isProjectManager) {
+            taskFormContainer.innerHTML = `
+                <div class="task-form">
+                    <h2>Add New Task</h2>
+                    <form id="taskForm">
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority</label>
+                            <select id="priority" required>
+                                <option value="Priority">Priority</option>
+                                <option value="Non-Priority">Non-Priority</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="team">Team</label>
+                            <select id="team" required>
+                                <option value="">Select a team...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="startTime">Start Time</label>
+                            <input type="datetime-local" id="startTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endTime">End Time</label>
+                            <input type="datetime-local" id="endTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="attachments">Attachments (optional):</label>
+                            <input type="file" id="attachments" name="files" multiple>
+                        </div>
+                        <button type="button" onclick="addItem()" class="btn btn-primary" id="addTaskBtn">Add Task</button>
+                    </form>
+                </div>
+            `;
+        } else {
+            taskFormContainer.innerHTML = ''; 
+        }
+
+        
+        function addItem() {
+            if (!isProjectManager) {
+                alert('Only Project Managers can add new tasks.');
+                return;
+            }
+
+            const description = document.getElementById('description').value;
+            const priority = document.getElementById('priority').value;
+            const team = document.getElementById('team').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+
+            if (!description || !priority || !team || !startTime || !endTime) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+    
+            const task = {
+                description: description,
+                priority: priority,
+                team: team,
+                startTime: startTime,
+                endTime: endTime,
+                status: 'Not Started'
+            };
+
+            const tableBody = document.getElementById('table-body');
+            const row = createTableRow(task);
+            tableBody.appendChild(row);
+
+        
+            document.getElementById('taskForm').reset();
+        }
+
+        function createTableRow(task) {
+            const row = document.createElement('tr');
+            row.setAttribute('data-task-id', task._id);
+            row.innerHTML = `
+                <td>${task._id}</td>
+                <td>${task.description}</td>
+                <td>${task.priority}</td>
+                <td class="status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</td>
+                <td>${task.startTime}</td>
+                <td>${task.endTime}</td>
+                <td>${task.team_id}</td>
+                <td><button onclick="addToCalendar('${task._id}')" class="btn btn-small"><i class="fas fa-calendar-plus"></i></button></td>
+                <td><a href="/html/subtask.html?taskId=${task._id}" class="btn btn-small btn-info"><i class="fas fa-list"></i> View Subtasks</a></td>
+                <td class="action-column">
+                    ${isProjectManager ? `
+                        <div class="action-buttons-vertical">
+                            <button onclick="editTask('${task._id}')" class="btn btn-small btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="deleteTask('${task._id}')" class="btn btn-small btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button onclick="approveTask('${task._id}')" class="btn btn-small btn-success">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </div>
+                    ` : ''}
+                </td>
+            `;
+            return row;
+        }
+
+        function deleteTask(taskId) {
+            if (!isProjectManager) {
+                alert('Only Project Managers can delete tasks.');
+                return;
+            }
+            const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
+            if (row) {
+                row.remove();
+            }
+        }
+
+        function editTask(taskId) {
+            if (!isProjectManager) {
+                alert('Only Project Managers can edit tasks.');
+                return;
+            }
+            const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
+            if (row) {
+     
+            }
+        }
+
+       
+        function renderTasks(tasks) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            tasks.forEach(task => {
+                const row = createTableRow(task);
+                tableBody.appendChild(row);
+            });
+
+            
+            calculateAndDisplayTaskCosts(tasks);
+        }
+
+       
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+             
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project_id');
+                
+                if (!projectId) {
+                    console.error('No project ID found in URL');
+                    return;
+                }
+
+              
+                localStorage.setItem('project_id', projectId);
+
+                const response = await fetch(`http://localhost:5555/api/tasks?project_id=${projectId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
+                const tasks = await response.json();
+                renderTasks(tasks);
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        });
+
+        async function calculateAndDisplayTaskCosts(tasks) {
+            const costsTableBody = document.getElementById('costs-table-body');
+            costsTableBody.innerHTML = '';
+
+            for (const task of tasks) {
+                let estimatedServiceCost = 0;
+                let estimatedGoodsCost = 0;
+                let actualServiceCost = 0;
+                let actualGoodsCost = 0;
+
+ 
+                if (task.subtasks && task.subtasks.length > 0) {
+                    task.subtasks.forEach(subtask => {
+                        if (subtask.type === 'Service' && subtask.service) {
+                            estimatedServiceCost += subtask.service.estimatedCost || 0;
+                            actualServiceCost += subtask.service.actualCost || 0;
+                        } else if (subtask.type === 'Good' && subtask.goods) {
+                            estimatedGoodsCost += subtask.goods.estimatedCost || 0;
+                            actualGoodsCost += subtask.goods.actualCost || 0;
+                        }
+                    });
+                }
+
+                const totalEstimatedCost = estimatedServiceCost + estimatedGoodsCost;
+                const totalActualCost = actualServiceCost + actualGoodsCost;
+
+                const row = document.createElement('tr');
+                row.setAttribute('data-task-id', task._id);
+                row.innerHTML = `
+                    <td>${task.description}</td>
+                    <td style="font-weight: normal">$${estimatedServiceCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${estimatedGoodsCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${totalEstimatedCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${actualServiceCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${actualGoodsCost.toFixed(2)}</td>
+                    <td style="font-weight: normal">$${totalActualCost.toFixed(2)}</td>
+                    <td>
+                        <button onclick="viewTaskSubtasks('${task._id}')" class="subtask-btn">
+                            <i class="fas fa-edit"></i> Enter Actual Cost
+                            <span class="subtask-count">${task.subtasks ? task.subtasks.length : 0}</span>
+                        </button>
+                    </td>
+                `;
+                costsTableBody.appendChild(row);
+            }
+        }
+
+        document.getElementById('applyCostSort').addEventListener('click', function() {
+            const sortBy = document.getElementById('costSortBy').value;
+            const costsTableBody = document.getElementById('costs-table-body');
+            const rows = Array.from(costsTableBody.getElementsByTagName('tr'));
+
+            rows.sort((a, b) => {
+                if (sortBy === 'cost') {
+                    const costA = parseFloat(a.cells[3].textContent.replace('$', '')); // Total Estimated Cost
+                    const costB = parseFloat(b.cells[3].textContent.replace('$', ''));
+                    return costB - costA; 
+                } else {
+                    const nameA = a.cells[0].textContent;
+                    const nameB = b.cells[0].textContent;
+                    return nameA.localeCompare(nameB);
+                }
+            });
+
+            costsTableBody.innerHTML = '';
+            rows.forEach(row => costsTableBody.appendChild(row));
+        });
+
+  
+        function viewTaskSubtasks(taskId) {
+   
+            const modal = document.createElement('div');
+            modal.className = 'subtasks-modal';
+            modal.innerHTML = `
+                <div class="subtasks-modal-content">
+                    <div class="subtasks-modal-header">
+                        <h2>Enter Actual Cost</h2>
+                        <button class="close-btn" onclick="this.closest('.subtasks-modal').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="subtasks-modal-body">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading subtasks...
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+
+            fetch(`http://localhost:5555/api/tasks/${taskId}`)
+                .then(res => res.json())
+                .then(task => {
+                    const modalBody = modal.querySelector('.subtasks-modal-body');
+                    if (!task.subtasks || task.subtasks.length === 0) {
+                        modalBody.innerHTML = '<p class="no-subtasks">No subtasks found for this task.</p>';
+                        return;
+                    }
+
+                    const subtasksList = document.createElement('div');
+                    subtasksList.className = 'subtasks-list';
+                    task.subtasks.forEach(subtask => {
+                        const subtaskEl = document.createElement('div');
+                        subtaskEl.className = 'subtask-item';
+                        
+                        let costInfo = '';
+                        if (subtask.type === 'Service' && subtask.service) {
+                            costInfo = `
+                                <div class="cost-info">
+                                    <div class="cost-section">
+                                        <h4>Estimated Values</h4>
+                                        <p><strong>Type:</strong> Service</p>
+                                        <p><strong>Hours:</strong> ${subtask.service.estimatedHours}</p>
+                                        <p><strong>People:</strong> ${subtask.service.estimatedPeople}</p>
+                                        <p><strong>Cost per Person:</strong> $${subtask.service.costPerPerson}</p>
+                                        <p><strong>Total Cost:</strong> $${subtask.service.estimatedCost}</p>
+                                    </div>
+                                    <div class="cost-section">
+                                        <h4>Actual Values</h4>
+                                        <div class="input-group">
+                                            <label>Hours:</label>
+                                            <input type="number" 
+                                                   class="actual-hours" 
+                                                   value="${subtask.service.actualHours || 0}" 
+                                                   min="0" 
+                                                   step="0.5">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>People:</label>
+                                            <input type="number" 
+                                                   class="actual-people" 
+                                                   value="${subtask.service.actualPeople || 0}" 
+                                                   min="0">
+                                        </div>
+                                        <p><strong>Cost per Person:</strong> $${subtask.service.costPerPerson}</p>
+                                        <p><strong>Total Cost:</strong> <span class="actual-cost">$${subtask.service.actualCost || 0}</span></p>
+                                        <button onclick="updateServiceValues('${task._id}', '${subtask._id}', this)" class="update-btn">
+                                            <i class="fas fa-check"></i> Enter
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        } else if (subtask.type === 'Good' && subtask.goods) {
+                            costInfo = `
+                                <div class="cost-info">
+                                    <div class="cost-section">
+                                        <h4>Estimated Values</h4>
+                                        <p><strong>Type:</strong> Good</p>
+                                        <p><strong>Quantity:</strong> ${subtask.goods.estimatedQuantity}</p>
+                                        <p><strong>Price/Piece:</strong> $${subtask.goods.estimatedPricePerPiece}</p>
+                                        <p><strong>Total Cost:</strong> $${subtask.goods.estimatedCost}</p>
+                                    </div>
+                                    <div class="cost-section">
+                                        <h4>Actual Values</h4>
+                                        <div class="input-group">
+                                            <label>Quantity:</label>
+                                            <input type="number" 
+                                                   class="actual-quantity" 
+                                                   value="${subtask.goods.actualQuantity || 0}" 
+                                                   min="0">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Price/Piece:</label>
+                                            <input type="number" 
+                                                   class="actual-price" 
+                                                   value="${subtask.goods.actualPricePerPiece || 0}" 
+                                                   min="0" 
+                                                   step="0.01">
+                                        </div>
+                                        <p><strong>Total Cost:</strong> <span class="actual-cost">$${subtask.goods.actualCost || 0}</span></p>
+                                        <button onclick="updateGoodsValues('${task._id}', '${subtask._id}', this)" class="update-btn">
+                                            <i class="fas fa-check"></i> Enter
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        subtaskEl.innerHTML = `
+                            <div class="subtask-header">
+                                <h3>${subtask.description} <span class="subtask-type">(${subtask.type})</span></h3>
+                                <span class="status-badge status-${subtask.completed ? 'completed' : 'in-progress'}">
+                                    ${subtask.completed ? 'Completed' : 'In Progress'}
+                                </span>
+                            </div>
+                            ${costInfo}
+                        `;
+                        subtasksList.appendChild(subtaskEl);
+                    });
+                    modalBody.innerHTML = '';
+                    modalBody.appendChild(subtasksList);
+                })
+                .catch(error => {
+                    console.error('Error loading subtasks:', error);
+                    modal.querySelector('.subtasks-modal-body').innerHTML = 
+                        '<p class="error">Error loading subtasks. Please try again.</p>';
+                });
+        }
+
+    
+        async function updateServiceValues(taskId, subtaskId, button) {
+            const subtaskItem = button.closest('.subtask-item');
+            const hoursInput = subtaskItem.querySelector('.actual-hours');
+            const peopleInput = subtaskItem.querySelector('.actual-people');
+            const costDisplay = subtaskItem.querySelector('.actual-cost');
+
+
+            const hours = parseFloat(hoursInput.value);
+            const people = parseInt(peopleInput.value);
+
+            if (isNaN(hours) || isNaN(people)) {
+                button.innerHTML = '<i class="fas fa-times"></i> Invalid Input';
+                button.classList.add('error');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('error');
+                }, 2000);
+                return;
+            }
+
+            const costPerPerson = parseFloat(subtaskItem.querySelector('.cost-section').textContent.match(/Cost per Person: \$(\d+)/)[1]);
+            
+           
+            const actualCost = hours * people * costPerPerson;
+            costDisplay.textContent = `$${actualCost.toFixed(2)}`;
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch(`http://localhost:5555/api/tasks/${taskId}/subtasks/${subtaskId}/actual`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        service: {
+                            actualHours: hours,
+                            actualPeople: people,
+                            actualCost: actualCost
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update actual values');
+                }
+
+                const updatedTask = await response.json();
+                console.log('Updated task:', updatedTask);
+
+                button.innerHTML = '<i class="fas fa-check"></i> Updated';
+                button.classList.add('success');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('success');
+                    button.disabled = false;
+                }, 2000);
+
+              
+                await updateTaskCostsOverview(taskId);
+
+            } catch (error) {
+                console.error('Error updating actual values:', error);
+                button.innerHTML = '<i class="fas fa-times"></i> Error';
+                button.classList.add('error');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('error');
+                    button.disabled = false;
+                }, 2000);
+            }
+        }
+
+        async function updateGoodsValues(taskId, subtaskId, button) {
+            const subtaskItem = button.closest('.subtask-item');
+            const quantityInput = subtaskItem.querySelector('.actual-quantity');
+            const priceInput = subtaskItem.querySelector('.actual-price');
+            const costDisplay = subtaskItem.querySelector('.actual-cost');
+
+            const quantity = parseFloat(quantityInput.value);
+            const pricePerPiece = parseFloat(priceInput.value);
+
+            if (isNaN(quantity) || isNaN(pricePerPiece)) {
+                button.innerHTML = '<i class="fas fa-times"></i> Invalid Input';
+                button.classList.add('error');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('error');
+                }, 2000);
+                return;
+            }
+
+
+            const actualCost = quantity * pricePerPiece;
+            costDisplay.textContent = `$${actualCost.toFixed(2)}`;
+
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            button.disabled = true;
+
+
+            try {
+                const response = await fetch(`http://localhost:5555/api/tasks/${taskId}/subtasks/${subtaskId}/actual`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        goods: {
+                            actualQuantity: quantity,
+                            actualPricePerPiece: pricePerPiece,
+                            actualCost: actualCost
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update actual values');
+                }
+
+                const updatedTask = await response.json();
+                console.log('Updated task:', updatedTask);
+
+                button.innerHTML = '<i class="fas fa-check"></i> Updated';
+                button.classList.add('success');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('success');
+                    button.disabled = false;
+                }, 2000);
+
+                await updateTaskCostsOverview(taskId);
+
+            } catch (error) {
+                console.error('Error updating actual values:', error);
+                button.innerHTML = '<i class="fas fa-times"></i> Error';
+                button.classList.add('error');
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Enter';
+                    button.classList.remove('error');
+                    button.disabled = false;
+                }, 2000);
+            }
+        }
+
+   
+        async function updateTaskCostsOverview(taskId) {
+            try {
+                const projectId = localStorage.getItem('project_id');
+                const response = await fetch(`http://localhost:5555/api/tasks?project_id=${projectId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch updated tasks');
+                }
+                const tasks = await response.json();
+    
+                const costsTableBody = document.getElementById('costs-table-body');
+                const taskRow = costsTableBody.querySelector(`tr[data-task-id="${taskId}"]`);
+                
+                if (taskRow) {
+                    const task = tasks.find(t => t._id === taskId);
+                    if (task) {
+                        let estimatedServiceCost = 0;
+                        let estimatedGoodsCost = 0;
+                        let actualServiceCost = 0;
+                        let actualGoodsCost = 0;
+
+                        if (task.subtasks && task.subtasks.length > 0) {
+                            task.subtasks.forEach(subtask => {
+                                if (subtask.type === 'Service' && subtask.service) {
+                                    estimatedServiceCost += subtask.service.estimatedCost || 0;
+                                    actualServiceCost += subtask.service.actualCost || 0;
+                                } else if (subtask.type === 'Good' && subtask.goods) {
+                                    estimatedGoodsCost += subtask.goods.estimatedCost || 0;
+                                    actualGoodsCost += subtask.goods.actualCost || 0;
+                                }
+                            });
+                        }
+
+                        const totalEstimatedCost = estimatedServiceCost + estimatedGoodsCost;
+                        const totalActualCost = actualServiceCost + actualGoodsCost;
+
+                       
+                        taskRow.cells[1].textContent = `$${estimatedServiceCost.toFixed(2)}`;
+                        taskRow.cells[2].textContent = `$${estimatedGoodsCost.toFixed(2)}`;
+                        taskRow.cells[3].textContent = `$${totalEstimatedCost.toFixed(2)}`;
+                        taskRow.cells[4].textContent = `$${actualServiceCost.toFixed(2)}`;
+                        taskRow.cells[5].textContent = `$${actualGoodsCost.toFixed(2)}`;
+                        taskRow.cells[6].textContent = `$${totalActualCost.toFixed(2)}`;
+                    }
+                }
+
+                await updateProjectSummary();
+
+            } catch (error) {
+                console.error('Error updating task costs overview:', error);
+            }
+        }
+
+        async function updateProjectSummary() {
+            try {
+                const projectId = localStorage.getItem('project_id');
+                const response = await fetch(`http://localhost:5555/api/tasks?project_id=${projectId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
+                const tasks = await response.json();
+
+                let totalEstimatedCost = 0;
+                let totalActualCost = 0;
+
+                tasks.forEach(task => {
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        task.subtasks.forEach(subtask => {
+                            if (subtask.type === 'Service' && subtask.service) {
+                                totalEstimatedCost += subtask.service.estimatedCost || 0;
+                                totalActualCost += subtask.service.actualCost || 0;
+                            } else if (subtask.type === 'Good' && subtask.goods) {
+                                totalEstimatedCost += subtask.goods.estimatedCost || 0;
+                                totalActualCost += subtask.goods.actualCost || 0;
+                            }
+                        });
+                    }
+                });
+
+                const savings = Math.max(0, totalEstimatedCost - totalActualCost);
+                const extraCost = Math.max(0, totalActualCost - totalEstimatedCost);
+
+
+                document.getElementById('projectSavings').textContent = `$${savings.toFixed(2)}`;
+                document.getElementById('projectExtraCost').textContent = `$${extraCost.toFixed(2)}`;
+
+                const savingsCard = document.querySelector('.summary-card.savings');
+                const extraCostCard = document.querySelector('.summary-card.extra-cost');
+
+                if (savings > 0) {
+                    savingsCard.classList.add('has-value');
+                } else {
+                    savingsCard.classList.remove('has-value');
+                }
+
+                if (extraCost > 0) {
+                    extraCostCard.classList.add('has-value');
+                } else {
+                    extraCostCard.classList.remove('has-value');
+                }
+
+            } catch (error) {
+                console.error('Error updating project summary:', error);
+            }
+        }
+
+
+        const modalStyles = document.createElement('style');
+        modalStyles.textContent = `
+            .subtasks-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            .subtasks-modal-content {
+                background: white;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 800px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            .subtasks-modal-header {
+                padding: 20px;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .subtasks-modal-header h2 {
+                margin: 0;
+                color: #333;
+            }
+
+            .close-btn {
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #666;
+                padding: 5px;
+            }
+
+            .close-btn:hover {
+                color: #333;
+            }
+
+            .subtasks-modal-body {
+                padding: 20px;
+            }
+
+            .subtasks-list {
+                display: grid;
+                gap: 15px;
+            }
+
+            .subtask-item {
+                background: #f8f9fa;
+                border-radius: 6px;
+                padding: 15px;
+                border: 1px solid #eee;
+            }
+
+            .subtask-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .subtask-header h3 {
+                margin: 0;
+                font-size: 16px;
+                color: #333;
+            }
+
+            .status-badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .status-completed {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+
+            .status-in-progress {
+                background: #e3f2fd;
+                color: #1565c0;
+            }
+
+            .cost-info {
+                background: white;
+                padding: 10px;
+                border-radius: 4px;
+                margin-top: 10px;
+            }
+
+            .cost-info p {
+                margin: 5px 0;
+                color: #666;
+            }
+
+            .loading {
+                text-align: center;
+                padding: 20px;
+                color: #666;
+            }
+
+            .no-subtasks {
+                text-align: center;
+                color: #666;
+                padding: 20px;
+            }
+
+            .error {
+                text-align: center;
+                color: #dc3545;
+                padding: 20px;
+            }
+        `;
+        document.head.appendChild(modalStyles);
+
+
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            .cost-section {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 15px;
+            }
+
+            .cost-section h4 {
+                margin: 0 0 10px 0;
+                color: #333;
+                font-size: 16px;
+            }
+
+            .input-group {
+                margin: 10px 0;
+            }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #666;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+
+            .input-group input:focus {
+                border-color: #4CAF50;
+                outline: none;
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+
+        const updateButtonStyles = document.createElement('style');
+        updateButtonStyles.textContent = `
+            .subtask-btn {
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .subtask-btn:hover {
+                background: #45a049;
+                transform: translateY(-1px);
+            }
+
+            .subtask-btn i {
+                font-size: 14px;
+            }
+
+            .subtask-count {
+                background: rgba(255, 255, 255, 0.2);
+                padding: 2px 6px;
+                border-radius: 12px;
+                font-size: 12px;
+                margin-left: 4px;
+            }
+
+            .update-btn {
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+                transition: all 0.3s ease;
+            }
+
+            .update-btn:hover:not(:disabled) {
+                background: #45a049;
+            }
+
+            .update-btn:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+            .update-btn.success {
+                background: #2e7d32;
+            }
+
+            .update-btn.error {
+                background: #c62828;
+            }
+
+            .fa-spinner {
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(updateButtonStyles);
+
+        const subtaskTypeStyles = document.createElement('style');
+        subtaskTypeStyles.textContent = `
+            .subtask-type {
+                color: #666;
+                font-size: 0.9em;
+                font-weight: normal;
+            }
+
+            .subtask-header h3 {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+        `;
+        document.head.appendChild(subtaskTypeStyles);
+
+
+        const summaryStyles = document.createElement('style');
+        summaryStyles.textContent = `
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                padding: 1rem;
+            }
+
+            .summary-card {
+                background: #f8f9fa;
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+            }
+
+            .summary-card h3 {
+                color: #333;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .summary-card h3 i {
+                font-size: 1.2em;
+            }
+
+            .summary-value {
+                font-size: 2rem;
+                font-weight: bold;
+                margin: 1rem 0;
+                color: #666;
+            }
+
+            .summary-description {
+                color: #666;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .summary-card.savings.has-value {
+                border-color: #4CAF50;
+                background: #f1f8e9;
+            }
+
+            .summary-card.savings.has-value .summary-value {
+                color: #2e7d32;
+            }
+
+            .summary-card.extra-cost.has-value {
+                border-color: #f44336;
+                background: #ffebee;
+            }
+
+            .summary-card.extra-cost.has-value .summary-value {
+                color: #c62828;
+            }
+
+            .summary-card.savings h3 i {
+                color: #4CAF50;
+            }
+
+            .summary-card.extra-cost h3 i {
+                color: #f44336;
+            }
+        `;
+        document.head.appendChild(summaryStyles);
+
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProjectSummary();
+        });
+
+        document.getElementById('applyFilters').addEventListener('click', function() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach(row => {
+                let showRow = true;
+
+                if (statusFilter !== 'all') {
+                    const status = row.querySelector('td:nth-child(4)').textContent;
+                    if (status !== statusFilter) {
+                        showRow = false;
+                    }
+                }
+
+                if (priorityFilter !== 'all') {
+                    const priority = row.querySelector('td:nth-child(3)').textContent;
+                    if (priority !== priorityFilter) {
+                        showRow = false;
+                    }
+                }
+
+                if (startDate) {
+                    const taskStartDate = new Date(row.querySelector('td:nth-child(5)').textContent);
+                    const filterStartDate = new Date(startDate);
+                    if (taskStartDate < filterStartDate) {
+                        showRow = false;
+                    }
+                }
+
+                if (endDate) {
+                    const taskEndDate = new Date(row.querySelector('td:nth-child(6)').textContent);
+                    const filterEndDate = new Date(endDate);
+                    if (taskEndDate > filterEndDate) {
+                        showRow = false;
+                    }
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            });
+        });
+
+
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            document.getElementById('applyFilters').click();
+        });
+
+    
+        document.getElementById('priorityFilter').addEventListener('change', function() {
+            document.getElementById('applyFilters').click();
+        });
+
+       
+        document.getElementById('startDate').addEventListener('change', function() {
+            document.getElementById('applyFilters').click();
+        });
+
+        document.getElementById('endDate').addEventListener('change', function() {
+            document.getElementById('applyFilters').click();
+        });
+
+        
+        const newStyles = document.createElement('style');
+        newStyles.textContent = `
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .action-btn {
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .budget-btn {
+                background: #6a1b9a;
+                color: white;
+            }
+
+            .budget-btn:hover {
+                background: #4a148c;
+                transform: translateY(-1px);
+            }
+
+            .action-column {
+                width: 150px;
+            }
+
+            .action-buttons-vertical {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .action-buttons-vertical button {
+                width: 100%;
+                padding: 0.5rem;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .btn-warning {
+                background: #ffa000;
+                color: white;
+            }
+
+            .btn-warning:hover {
+                background: #f57c00;
+            }
+
+            .btn-danger {
+                background: #d32f2f;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background: #b71c1c;
+            }
+
+            .btn-success {
+                background: #2e7d32;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #1b5e20;
+            }
+        `;
+        document.head.appendChild(newStyles);
+
+
+        function showNotification(title, message, notificationId) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="closeNotification('${notificationId}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(notification);
+        }
+
+        function closeNotification(notificationId) {
+
+            const notification = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notification) {
+                notification.remove();
+            }
+
+
+            const notifications = JSON.parse(localStorage.getItem('teamLeaderNotifications') || '[]');
+            const updatedNotifications = notifications.filter(n => n.id !== notificationId);
+            localStorage.setItem('teamLeaderNotifications', JSON.stringify(updatedNotifications));
+        }
+
+        function checkForNotifications() {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole === 'Team Lead') {
+                const notifications = JSON.parse(localStorage.getItem('teamLeaderNotifications') || '[]');
+                notifications.forEach(notification => {
+                    showNotification(notification.title, notification.message, notification.id);
+                });
+            }
+        }
+
+        function showSuccessToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'success-toast';
+            toast.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+
+     
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifyBtn = document.getElementById('notifyTeamLeaderBtn');
+            
+            notifyBtn.addEventListener('click', function() {
+                const projectId = localStorage.getItem('project_id');
+                if (!projectId) {
+                    showSuccessToast('No project ID found. Please make sure you are in a project.');
+                    return;
+                }
+
+        
+                const notificationId = Date.now().toString();
+                const notification = {
+                    id: notificationId,
+                    title: 'New Task Notification',
+                    message: 'All tasks have been created. You can now add subtasks.',
+                    timestamp: new Date().toISOString()
+                };
+
+                const notifications = JSON.parse(localStorage.getItem('teamLeaderNotifications') || '[]');
+                notifications.push(notification);
+                localStorage.setItem('teamLeaderNotifications', JSON.stringify(notifications));
+
+                showSuccessToast('Team Leader has been notified successfully!');
+            });
+
+         
+            checkForNotifications();
+        });
+    </script>
+</body>
+</html>
