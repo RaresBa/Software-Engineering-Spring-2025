@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Chats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1565c0;
+            --primary-hover: #0a3e79;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+    
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 1rem 2rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+        }
+
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .dashboard-logo {
+            width: 70px;
+            height: auto;
+            margin-right: 2px;
+            vertical-align: middle;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            background: var(--bg-color);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .chat-list {
+            list-style: none;
+        }
+
+        .chat-item {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .chat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-project {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .unread-badge {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="dashboard-title">
+                    <img src="{{ url_for('static', filename='dashboard_logo.png') }}" alt="Dashboard Logo" class="dashboard-logo">
+                    Dashboard
+                </h2>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    {% if session.get('role') == 'Project Manager' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link">
+                            <i class="fas fa-project-diagram"></i> Active Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/frontend/html/project_viewchart.html" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Project Timeline
+                        </a>
+                    </li>
+                    {% elif session.get('role') == 'Main Stakeholder' %}
+                    <li class="nav-item">
+                        <a href="#not-approved-projects" class="nav-link">
+                            <i class="fas fa-clock"></i> Not Approved Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#approved-projects" class="nav-link">
+                            <i class="fas fa-check-circle"></i> Approved Projects
+                        </a>
+                    </li>
+                    {% elif session.get('role') == "Team Lead" %}
+                    <li class="nav-item">
+                        <a href="{{url_for('dashboard')}}" class="nav-link">
+                            <i class="fas fa-users"></i> Team
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if session.get('role') == 'Participant' %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if session.get('role') == 'Participant' %}
+                    <li class="nav-item">
+                        <a id="tasks-link" href="#" class="nav-link">
+                            <i class="fas fa-clipboard-list"></i> Tasks
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('get_user_chats') }}" class="nav-link">
+                            <i class="fas fa-comments"></i> Chats
+                            {% if unread_count and unread_count > 0 %}
+                              ({{ unread_count }})
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('logout') }}" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h2>My Chats</h2>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-comments"></i> Chat Conversations</h3>
+            
+            {% if chats %}
+                <div class="chat-list">
+                    {% for chat in chats %}
+                        <a href="{{ url_for('view_chat', chat_id=chat.ChatID) }}" class="chat-item">
+                            <div class="chat-info">
+                                <div class="chat-name">{{ chat.Name }}</div>
+                                <div class="chat-project">
+                                    {% if chat.ProjectName %}
+                                        Project: {{ chat.ProjectName }}
+                                    {% else %}
+                                        Team Chat
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if chat.UnreadCount > 0 %}
+                                <span class="unread-badge">{{ chat.UnreadCount }}</span>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You don't have any active chats.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var pid = document.cookie.replace(/(?:(?:^|.*; )project_id=([^;]*).*$)|^.*$/, '$1');
+        var link = document.getElementById('tasks-link');
+        if (link && pid) {
+            link.href = '/task_view?project_id=' + pid;
+        }
+    });
+    </script>
+</body>
+</html> 

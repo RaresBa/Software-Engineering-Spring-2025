@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1d4ed8;  /* Dark Blue */
+            --primary-hover: #1e40af;  /* Even Darker Blue */
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 1rem 2rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            background: var(--bg-color);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .admin-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Section Styles */
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section h3 i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-color);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .flashes {
+            list-style-type: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--success-color);  /* Green background */
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .user-list,
+        .team-list {
+            margin-top: 2rem;
+        }
+
+        .list-item {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .list-item-info {
+            flex: 1;
+        }
+
+        .list-item-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .list-item-details {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .role-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .form-group select[multiple] {
+            height: 150px;
+            padding: 0.5rem;
+        }
+
+        .form-group select[multiple] option {
+            padding: 0.5rem;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group select[multiple] option:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-group select[multiple] option:checked {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .team-card {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .team-header h4 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .team-members {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .team-members h5 {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .team-members ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .team-members li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .team-members li:last-child {
+            border-bottom: none;
+        }
+
+        .member-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .member-role {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .member-email {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-leader {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .team-leader i {
+            color: var(--primary-color);
+        }
+
+        .leader-email {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .team-stats {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .team-stats i {
+            color: var(--primary-color);
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .member-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .member-role {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .member-role.team-lead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .member-role.participant {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .member-role.project-manager {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .section {
+            scroll-margin-top: 2rem;
+        }
+
+        .nav-link {
+            cursor: pointer;
+        }
+
+        /* Reset password button styles */
+        .btn-reset-password {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-reset-password:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalAppear 0.3s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: var(--bg-color);
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--border-color);
+            transform: rotate(90deg);
+        }
+        
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .user-info {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            line-height: 1.8;
+        }
+
+        .dashboard-logo {
+            width: 70px;  /* Increased size */
+            height: auto;
+            margin-right: 5px;  /* Reduced space */
+            vertical-align: middle;
+        }
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2 class="flex">
+                <img src="{{ url_for('static', filename='dashboard_logo.png') }}" alt="Dashboard Logo" class="dashboard-logo">
+                Admin Dashboard
+            </h2>
+        </div>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#create-user-section" class="nav-link active">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#create-team-section" class="nav-link">
+                        <i class="fas fa-users-cog"></i> Create Team
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#existing-teams-section" class="nav-link">
+                        <i class="fas fa-user-friends"></i> Existing Teams
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#registered-users-section" class="nav-link">
+                        <i class="fas fa-users"></i> Registered Users
+                    </a>
+                </li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 0; right: 0; padding: 0 1rem;">
+                <form action="{{ url_for('logout') }}" method="GET" style="margin: 0;">
+                    <button type="submit" class="logout-btn" style="width: 100%;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="welcome-section">
+                <h2>Welcome, Admin!</h2>
+                <span class="admin-badge">Administrator</span>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li><i class="fas fa-exclamation-circle"></i> {{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Create User Section -->
+        <section id="create-user-section" class="section">
+            <h3><i class="fas fa-user-plus"></i> Add New User</h3>
+            <form action="{{ url_for('create_user') }}" method="POST">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" required>
+                        <option value="Project Manager">Project Manager</option>
+                        <option value="Team Lead">Team Lead</option>
+                        <option value="Participant">Participant</option>
+                        <option value="Main Stakeholder">Main Stakeholder</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Create User
+                </button>
+            </form>
+        </section>
+
+        <!-- Create Team Section -->
+        <section id="create-team-section" class="section">
+            <h3><i class="fas fa-users-cog"></i> Create New Team</h3>
+            <form action="{{ url_for('create_team') }}" method="POST">
+                <div class="form-group">
+                    <label for="team_name">Team Name</label>
+                    <input type="text" id="team_name" name="team_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="team_lead">Team Lead</label>
+                    <select id="team_lead" name="team_leader" required>
+                        <option value="">Select Team Lead</option>
+                        {% for user in eligible_team_leads %}
+                            <option value="{{ user.UserID }}">{{ user.Name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="participants">Participants</label>
+                    <select id="participants" name="participants" multiple required>
+                        {% for user in eligible_participants %}
+                            <option value="{{ user.UserID }}">{{ user.Name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--text-light); margin-top: 0.5rem; display: block;">
+                        Hold Ctrl (Windows) or Command (Mac) to select multiple participants
+                    </small>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="create_team_chat" name="create_team_chat" checked>
+                    <label for="create_team_chat" style="margin-bottom: 0;">Create team chat automatically</label>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Create Team
+                </button>
+            </form>
+        </section>
+
+        <!-- Existing Teams Section -->
+        <section id="existing-teams-section" class="section">
+            <h3><i class="fas fa-user-friends"></i> Existing Teams</h3>
+            <div class="team-list">
+                {% for team in teams %}
+                <div class="team-card">
+                    <div class="team-header">
+                        <div class="team-info">
+                            <h4>{{ team.TeamName }}</h4>
+                            <div class="team-leader">
+                                <i class="fas fa-user-tie"></i> Team Leader: {{ team.LeaderName }}
+                                <span class="leader-email">({{ team.LeaderEmail }})</span>
+                            </div>
+                            <div class="team-stats">
+                                <i class="fas fa-users"></i> Total Members: {{ team.MemberCount }}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="toggleTeamMembers({{ team.TeamID }})">
+                            <i class="fas fa-chevron-down"></i> View Members
+                        </button>
+                    </div>
+                    <div id="team-members-{{ team.TeamID }}" class="team-members" style="display: none;">
+                        <h5>Team Members:</h5>
+                        <ul>
+                            {% for user in users %}
+                                {% if user.TeamID == team.TeamID %}
+                                <li class="member-item">
+                                    <div class="member-info">
+                                        <span class="member-name">{{ user.Name }}</span>
+                                        <span class="member-email">{{ user.Email }}</span>
+                                    </div>
+                                    <span class="member-role {{ user.Role|lower|replace(' ', '-') }}">{{ user.Role }}</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Registered Users Section -->
+        <section id="registered-users-section" class="section">
+            <h3><i class="fas fa-users"></i> Registered Users</h3>
+            <div class="user-list">
+                {% for user in users %}
+                    <div class="list-item">
+                        <div class="list-item-info">
+                            <div class="list-item-name">{{ user.Name }}</div>
+                            <div class="list-item-details">
+                                {{ user.Email }}
+                                <span class="role-badge">{{ user.Role }}</span>
+                            </div>
+                        </div>
+                        {% if user.Role != 'Admin' or user.UserID == session.user_id %}
+                        <button class="btn-reset-password" 
+                                onclick="openResetPasswordModal('{{ user.UserID }}', '{{ user.Name }}', '{{ user.Email }}')">
+                            <i class="fas fa-key"></i> Reset Password
+                        </button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <!-- Password Reset Modal -->
+    <div class="modal" id="resetPasswordModal" style="display: none; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);">
+        <div class="modal-content" style="background: white; border-radius: 16px; padding: 2rem; width: 90%; max-width: 480px; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); position: relative;">
+            <button class="modal-close" onclick="closeResetPasswordModal()" style="position: absolute; top: 1.2rem; right: 1.2rem; background: #f3f4f6; width: 32px; height: 32px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
+                <h2 style="font-size: 1.5rem; color: #1f2937; font-weight: 600;">Reset User Password</h2>
+            </div>
+            <form class="modal-form" action="/admin/reset_password" method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <input type="hidden" id="reset_user_id" name="user_id">
+                <div class="user-info" style="background: #f3f4f6; padding: 1rem; border-radius: 8px; line-height: 1.8; margin-bottom: 1rem; text-align: left;">
+                    <p><strong>User:</strong> <span id="reset_user_name"></span></p>
+                    <p><strong>Email:</strong> <span id="reset_user_email"></span></p>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" required minlength="8">
+                    <small style="display: block; margin-top: 0.5rem; color: var(--text-light);">Password must be at least 8 characters long</small>
+                </div>
+                <button type="submit" class="btn btn-warning" style="background: #f59e0b; width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleTeamMembers(teamId) {
+            const teamMembersElement = document.getElementById(`team-members-${teamId}`);
+            if (teamMembersElement.style.display === 'none') {
+                teamMembersElement.style.display = 'block';
+            } else {
+                teamMembersElement.style.display = 'none';
+            }
+        }
+        
+        // Password reset modal functions
+        function openResetPasswordModal(userId, userName, userEmail) {
+            // Set the form values
+            document.getElementById('reset_user_id').value = userId;
+            document.getElementById('reset_user_name').textContent = userName;
+            document.getElementById('reset_user_email').textContent = userEmail;
+            
+            // Show the modal with proper styles
+            const modal = document.getElementById('resetPasswordModal');
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            
+            // Focus on the password field
+            setTimeout(() => {
+                document.getElementById('new_password').focus();
+            }, 100);
+        }
+        
+        function closeResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'none';
+            
+            // Clear the password field for security
+            document.getElementById('new_password').value = '';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('resetPasswordModal');
+            if (event.target === modal) {
+                closeResetPasswordModal();
+            }
+        }
+        
+        // Handle navigation links for scrolling
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

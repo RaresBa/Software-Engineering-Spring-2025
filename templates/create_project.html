@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Create Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1565c0;
+            --primary-hover: #0a3e79;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .header h2 i {
+            color: var(--primary-color);
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .form-section h3 i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-color);
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="date"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .stakeholder-section {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stakeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .stakeholder-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .hide_message {
+            display: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .confirmation_stakeholder:hover + .hide_message {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .stakeholder-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>
+                <i class="fas fa-plus-circle"></i>
+                Create a New Project
+            </h2>
+            <form action="{{ url_for('logout') }}" method="POST" style="margin: 0;">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+
+        <form action="/create_project" method="POST" id="createProjectForm" class="form-container">
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> Project Information</h3>
+                <div class="form-group">
+                    <label for="project_title">Project Title</label>
+                    <input type="text" id="project_title" name="project_title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="project_type">Project Type</label>
+                    <select id="project_type" name="project_type" required>
+                        <option value="">Select Project Type</option>
+                        <option value="ai_ml">AI / ML</option>
+                        <option value="game_dev">Game Development</option>
+                        <option value="mission_critical">Mission Critical</option>
+                        <option value="mobile_app">Mobile App</option>
+                        <option value="embedded">Embedded</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="manager_id">Project Manager</label>
+                    <select id="manager_id" name="manager_id" required>
+                        <option value="">Select Project Manager</option>
+                        {% for user in project_managers %}
+                            <option value="{{ user.UserID }}">{{ user.Name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_date">Project Start Date</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">Project End Date</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-align-left"></i> Project Details</h3>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="objective">Objective</label>
+                    <textarea id="objective" name="objective"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="risks_issues">Risks and Issues</label>
+                    <textarea id="risks_issues" name="risks_issues"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="financials">Financials</label>
+                    <textarea id="financials" name="financials"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-users"></i> Teams</h3>
+                <div class="form-group">
+                    <label>Select Teams</label>
+                    <div class="checkbox-group" id="team-checkbox-section">
+                        {% for team in teams %}
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="team_{{ team.TeamID }}" name="team_ids" value="{{ team.TeamID }}" onchange="updateDropdown_teams()">
+                                <label for="team_{{ team.TeamID }}">{{ team.TeamName }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-handshake"></i> Stakeholders</h3>
+                
+                <div class="form-group">
+                    <label>Select Existing Stakeholder</label>
+                    <select id="existing_stakeholder_select" onchange="handleStakeholderSelect(this.value)">
+                        <option value="">Create New Stakeholder</option>
+                        {% for stakeholder in all_stakeholders %}
+                            <option value="{{ stakeholder.Name }}">{{ stakeholder.Name }} ({{ stakeholder.Classification }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div id="stakeholders-section">
+                    <div class="stakeholder">
+                        <!-- Stakeholders will be added here by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="stakeholder-actions">
+                    <button type="button" class="btn btn-primary" id="add_stakeholder_id" onclick="addStakeholder()">
+                        <i class="fas fa-plus"></i> Add Stakeholder
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="delete_stakeholder_id" onclick="deleteStakeholder()">
+                        <i class="fas fa-minus"></i> Delete Stakeholder
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Create Project
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Your existing JavaScript code here
+        addStakeholder1();
+
+        function handleStakeholderSelect(stakeholderName) {
+            const stakeholderSection = document.getElementById('stakeholders-section');
+            
+            // If an existing stakeholder is selected
+            if (stakeholderName) {
+                // Clear existing stakeholders
+                stakeholderSection.innerHTML = '';
+                
+                // Create a single stakeholder with the selected name
+                const newStakeholderDiv = document.createElement('div');
+                newStakeholderDiv.classList.add('stakeholder-section');
+                
+                newStakeholderDiv.innerHTML = `
+                    <div class="stakeholder-grid">
+                        <div class="form-group">
+                            <label>Stakeholder Name</label>
+                            <input type="text" name="stakeholder_names[]" value="${stakeholderName}" readonly required>
+                        </div>
+                        <div class="form-group">
+                            <label>Classification</label>
+                            <select name="Stakeholder_classification[]" required>
+                                <option value="Person">Person</option>
+                                <option value="Group">Group</option>
+                                <option value="Department">Department</option>
+                                <option value="Institution">Institution</option>
+                                <option value="Company">Company</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="Stakeholder_Type[]" required>
+                                <option value="Main">Main</option>
+                                <option value="Internal">Internal</option>
+                                <option value="External">External</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Rank</label>
+                            <select name="Rank" required>
+                                <option value="1">1</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                stakeholderSection.appendChild(newStakeholderDiv);
+                
+                // Disable add/delete buttons when dropdown selection is active
+                document.getElementById('add_stakeholder_id').disabled = true;
+                document.getElementById('delete_stakeholder_id').disabled = true;
+                
+                stakeholder_count = 1;
+            } else {
+                // Reset to create new stakeholder mode
+                stakeholderSection.innerHTML = '';
+                addStakeholder1();
+                
+                // Enable add/delete buttons
+                document.getElementById('add_stakeholder_id').disabled = false;
+                document.getElementById('delete_stakeholder_id').disabled = false;
+            }
+        }
+
+        function updateDropdown() {
+            document.querySelectorAll('.input_stk').forEach(input => {
+                input.readOnly = true;
+            });
+            
+            const stakeholderInputs = document.querySelectorAll('#stakeholders-section input[name="stakeholder_names[]"]'); 
+            let selectHTML = '<select id="dropdown_stk_selectid" name="milestone_stakeholders[]" class="form-group select">';
+            
+            selectHTML += '<option value="">Stakeholder Dropdown</option>'; 
+            selectHTML += '<option value="Reset">Reset Field</option>';
+
+            let hasStakeholders = false;
+
+            stakeholderInputs.forEach(input => {
+                const stk_name = input.value.trim();
+                if (stk_name !== "") {
+                    hasStakeholders = true;
+                    selectHTML += `<option value="${stk_name}">${stk_name}</option>`;
+                }
+            });
+
+            selectHTML += '</select>';
+            document.getElementById("stk_dropdown").innerHTML = selectHTML;
+            dropdownlisteners();
+        }
+
+        function updateDropdown_teams() {
+            document.querySelectorAll('.input_teams').forEach(input => {
+                input.readOnly = true;
+            });
+
+            const checkboxes_team = document.querySelectorAll('#team-checkbox-section input[type="checkbox"]:checked');
+            let selectHTML = '<select id="dropdown_teams_selectid" name="milestone_teams[]" class="form-group select">';
+            
+            selectHTML += '<option value="">Teams Dropdown</option>'; 
+            
+            checkboxes_team.forEach(checkbox => {
+                const teamName = checkbox.parentElement.textContent.trim();
+                selectHTML += `<option value="${teamName}">${teamName}</option>`;
+            });
+
+            selectHTML += '<option value="Reset">Reset Field</option>';
+            selectHTML += '</select>';
+            document.getElementById("team_dropdown").innerHTML = selectHTML;
+            dropdownlisteners_team();
+        }
+
+        var stakeholder_count = 1;
+
+        function updateRankOptions() {
+            let rankOptions = '';
+            for (let i = 1; i <= stakeholder_count; i++) {
+                rankOptions += `<option value="${i}">${i}</option>`;
+            }
+            return rankOptions;
+        }
+
+        function updateAllRankDropdowns() {
+            const stakeholderSection = document.getElementById('stakeholders-section');
+            const stakeholderDivs = stakeholderSection.querySelectorAll('.stakeholder');
+            stakeholderDivs.forEach(div => {
+                const rankSelect = div.querySelector('select[name="Rank"]');
+                if (rankSelect) {
+                    rankSelect.innerHTML = updateRankOptions();
+                }
+            });
+        }
+
+        function addStakeholder1() {
+            stakeholder_count = 1;
+            const stakeholderSection = document.getElementById('stakeholders-section');
+            const newStakeholderDiv = document.createElement('div');
+            newStakeholderDiv.classList.add('stakeholder-section');
+
+            newStakeholderDiv.innerHTML = `
+                <div class="stakeholder-grid">
+                    <div class="form-group">
+                        <label>Stakeholder Name</label>
+                        <input type="text" name="stakeholder_names[]" placeholder="Enter stakeholder" required oninput="updateDropdown()">
+                    </div>
+                    <div class="form-group">
+                        <label>Classification</label>
+                        <select name="Stakeholder_classification[]" required>
+                            <option value="Person">Person</option>
+                            <option value="Group">Group</option>
+                            <option value="Department">Department</option>
+                            <option value="Institution">Institution</option>
+                            <option value="Company">Company</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="Stakeholder_Type[]" required>
+                            <option value="Main">Main</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select name="Rank" required>
+                            <option value="${stakeholder_count}">${stakeholder_count}</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            stakeholderSection.appendChild(newStakeholderDiv);
+            updateDropdown();
+        }
+
+        function addStakeholder() {
+            stakeholder_count++;
+            const stakeholderSection = document.getElementById('stakeholders-section');
+            const newStakeholderDiv = document.createElement('div');
+            newStakeholderDiv.classList.add('stakeholder-section');
+
+            newStakeholderDiv.innerHTML = `
+                <div class="stakeholder-grid">
+                    <div class="form-group">
+                        <label>Stakeholder Name</label>
+                        <input type="text" name="stakeholder_names[]" placeholder="Enter stakeholder" required oninput="updateDropdown()">
+                    </div>
+                    <div class="form-group">
+                        <label>Classification</label>
+                        <select name="Stakeholder_classification[]" required>
+                            <option value="Person">Person</option>
+                            <option value="Group">Group</option>
+                            <option value="Department">Department</option>
+                            <option value="Institution">Institution</option>
+                            <option value="Company">Company</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="Stakeholder_Type[]" required>
+                            <option value="Internal">Internal</option>
+                            <option value="External">External</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <select name="Rank" required>
+                            <option value="${stakeholder_count}">${stakeholder_count}</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            stakeholderSection.appendChild(newStakeholderDiv);
+            updateAllRankDropdowns();
+            updateDropdown();
+        }
+
+        function deleteStakeholder() {
+            if (stakeholder_count > 1) {
+                const stakeholderSection = document.getElementById('stakeholders-section');
+                stakeholderSection.removeChild(stakeholderSection.lastChild);
+                stakeholder_count--;
+                updateAllRankDropdowns();
+                updateDropdown();
+            }
+        }
+    </script>
+</body>
+</html>

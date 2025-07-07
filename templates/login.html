@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><circle cx="50" cy="50" r="40" stroke="%236366f1" stroke-width="0.5" fill="none"/></svg>') repeat;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(0deg, #ffffff 0%, #f4f7fb 100%);
+            border-radius: 40px;
+            padding: 25px 35px;
+            border: 5px solid #ffffff;
+            box-shadow: rgba(133, 189, 215, 0.88) 0px 30px 30px -20px;
+            margin: 20px auto;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease-in-out;
+            }
+
+
+
+        .login-container:hover {
+            transform: scale(1.02);
+            box-shadow: rgba(133, 189, 215, 0.88) 0px 35px 30px -20px;
+            }
+
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .login-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 80px;              
+            transform: scale(1.8);      
+            transform-origin: center top;
+            margin-bottom: 3rem;      
+            margin: -130px
+            display: block;      
+        }
+
+
+        .form-group {
+            position: relative;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 400;
+            font-size: 1rem;
+            color: var(--text-color);
+            }
+
+
+
+        .form-group i {
+            position: absolute;
+            left: 1.2rem;
+            top: calc(1.3rem + 0.8rem + 1.3rem);
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.3rem;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1.3rem 1.2rem 1.3rem 3.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .form-group input:focus + i {
+            color: var(--primary-color);
+        }
+
+
+        button {
+        padding: 17px 40px;
+        border-radius: 50px;
+        cursor: pointer;
+        border: 0;
+        background-color: rgb(185, 190, 232);
+        box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-size: 15px;
+        transition: all 0.5s ease;
+        }
+
+        button:hover {
+        letter-spacing: 3px;
+        background-color: hsl(261deg 80% 48%);
+        color: hsla(0, 0%, 100%, 0.595);
+        box-shadow: rgb(93 24 220) 0px 7px 29px 0px;
+        }
+
+        button:active {
+        letter-spacing: 3px;
+        background-color: hsl(261deg 80% 48%);
+        color: hsl(0, 0%, 100%);
+        box-shadow: rgb(93 24 220) 0px 0px 0px 0px;
+        transform: translateY(10px);
+        transition: 100ms;
+        }
+
+        @keyframes rotate {
+        0% {
+            transform: rotateY(180deg);
+        }
+        100% {
+            transform: rotateY(360deg);
+        }
+        }
+
+
+
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .flash-messages ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .flash-messages li {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #fecaca;
+        }
+
+        .flash-messages li i {
+            font-size: 1.2rem;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-color);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .modal-form input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-form input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-form button {
+            background: var(--primary-color);
+            color: rgba(255, 255, 255, 0.607);
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-form button:hover {
+            background: var(--primary-hover);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+            }
+
+            .login-header h1 {
+                font-size: 2rem;
+            }
+
+            .login-header p {
+                font-size: 1rem;
+            }
+
+            .form-group input {
+                padding: 1.1rem 1rem 1.1rem 3rem;
+            }
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            margin-top: 15px;
+            }
+
+        .input-wrapper .icon {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #aaa;
+            pointer-events: none;
+            }
+
+        .input-wrapper .input {
+            width: 100%;
+            padding: 15px 20px 15px 3rem; 
+            border-radius: 20px;
+            border: none;
+            box-shadow: #cff0ff 0px 10px 10px -5px;
+            background: white;
+            font-size: 1rem;
+            border-inline: 2px solid transparent;
+            }
+
+        .input-wrapper .input:focus {
+            outline: none;
+            border-inline: 2px solid #12B1D1;
+            }
+
+        .input-wrapper .input::placeholder {
+            color: rgb(170, 170, 170);
+            letter-spacing: 0.5px;
+            }
+
+    
+        .input {
+            width: 100%;
+            background: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            box-shadow: #cff0ff 0px 10px 10px -5px;
+            border-inline: 2px solid transparent;
+            font-size: 1rem;
+            }
+
+        .input::placeholder {
+            color: rgb(170, 170, 170);
+            letter-spacing: 0.5px;
+            }
+
+        .input:focus {
+            outline: none;
+            border-inline: 2px solid #12B1D1;
+            }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img">
+                <p>Welcome back!</p>
+        </div>
+
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            <ul>
+                {% for message in messages %}
+                <li>
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form class="login-form" action="/login" method="POST">
+
+            <div class="input-wrapper">
+              <i class="fas fa-envelope icon"></i>
+              <input
+                type="email"
+                class="input"
+                name="email"
+                placeholder="email@example.com"
+                required
+              >
+            </div>
+          
+            <div class="input-wrapper">
+              <i class="fas fa-lock icon"></i>
+              <input
+                type="password"
+                class="input"
+                name="password"
+                placeholder="• • • • • • • • • •"
+                required
+              >
+            </div>
+          
+            <button type="submit" class="uiverse-button">
+              Sign In
+            </button>
+          
+          </form>
+          
+
+        <a href="#" class="forgot-password" onclick="openForgotPasswordModal()">Forgot your password?</a>
+    </div>
+
+    <div class="modal" id="forgotPasswordModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeForgotPasswordModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2>Forgot Password</h2>
+            </div>
+            <form class="modal-form" action="/forgot_password" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_password">Last Password You Remember</label>
+                    <input type="password" id="last_password" name="last_password" required>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="change_request" name="change_request" style="width: auto;">
+                    <label for="change_request" style="margin-bottom: 0;">I want to change my password (not forgotten)</label>
+                </div>
+                <button type="submit">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('forgotPasswordModal');
+            if (event.target === modal) {
+                closeForgotPasswordModal();
+            }
+        }
+    </script>
+</body>
+</html>

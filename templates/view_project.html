@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Project Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .header h2 i {
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section h3 i {
+            color: var(--primary-color);
+        }
+
+        .description {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .team-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .team-item {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .team-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-icon {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .team-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .stakeholder-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stakeholder-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .stakeholder-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stakeholder-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .stakeholder-table tr:hover {
+            background: var(--bg-color);
+        }
+
+        .rank-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .type-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .type-main {
+            background: var(--success-color);
+        }
+
+        .type-internal {
+            background: var(--primary-color);
+        }
+
+        .type-external {
+            background: var(--warning-color);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .stakeholder-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .team-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>
+                <i class="fas fa-project-diagram"></i>
+                {{ project.ProjectName }}
+            </h2>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-info-circle"></i> Project Description</h3>
+            <p class="description">{{ project.Description }}</p>
+        </div>
+
+        <div class="section">
+            <h3><i class="fas fa-users"></i> Assigned Teams</h3>
+            <div class="team-list">
+                {% for team in teams %}
+                    <div class="team-item">
+                        <div class="team-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="team-name">{{ team.TeamName }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+       
+        {% if session.role == 'Project Manager' %}
+        <div class="section">
+            <h3><i class="fas fa-comments"></i> Team Communication</h3>
+            <p class="description">Start a chat conversation with team leaders to coordinate project activities and track progress.</p>
+            
+            <form action="{{ url_for('create_chat', project_id=project.ProjectID) }}" method="POST" class="chat-form">
+                <div class="form-group">
+                    <label for="chat_name">Chat Name:</label>
+                    <input type="text" id="chat_name" name="chat_name" class="form-control" required placeholder="e.g., Project Updates, Task Coordination">
+                </div>
+                
+                <div class="form-group">
+                    <label for="team_leader_id">Select Team Leader:</label>
+                    <select id="team_leader_id" name="team_leader_id" class="form-control" required>
+                        <option value="">-- Select Team Leader --</option>
+                        {% for team in teams %}
+                            <option value="{{ team.TeamLeaderID }}">{{ team.LeaderName }} ({{ team.TeamName }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn" style="background: var(--primary-color);">
+                    <i class="fas fa-plus"></i> Create Chat
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h3><i class="fas fa-handshake"></i> Project Stakeholders</h3>
+            <table class="stakeholder-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Classification</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stakeholder in stakeholders %}
+                    <tr>
+                        <td><span class="rank-badge">#{{ stakeholder.Rank }}</span></td>
+                        <td>{{ stakeholder.Name }}</td>
+                        <td>{{ stakeholder.Classification }}</td>
+                        <td>
+                            <span class="type-badge type-{{ stakeholder.Type|lower }}">
+                                {{ stakeholder.Type }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

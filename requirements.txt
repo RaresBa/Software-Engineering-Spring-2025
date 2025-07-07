@@ -1,0 +1,12 @@
+flask
+dotenv
+pymysql
+flask-cors
+requests
+flask-mail
+werkzeug
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+google-api-core

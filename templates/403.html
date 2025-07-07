@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accord - Access Denied</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --warning-color: #f59e0b;
+            --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><circle cx="50" cy="50" r="40" stroke="%23f59e0b" stroke-width="0.5" fill="none"/></svg>') repeat;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .error-code {
+            font-size: 9rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--warning-color), #fbbf24);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+            opacity: 0;
+            animation: fadeIn 0.8s forwards, swing 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .error-title {
+            color: var(--text-color);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.2s forwards;
+        }
+
+        .error-message {
+            color: var(--text-light);
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.4s forwards;
+        }
+
+        .error-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.6s forwards;
+        }
+
+        .home-button {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-weight: 600;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .home-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .login-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .animated-lock {
+            position: absolute;
+            color: var(--warning-color);
+            opacity: 0.2;
+            font-size: 30px;
+        }
+
+        .animated-lock:nth-child(1) {
+            top: 15%;
+            left: 15%;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+
+        .animated-lock:nth-child(2) {
+            top: 30%;
+            right: 15%;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        .animated-lock:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        .animated-lock:nth-child(4) {
+            bottom: 25%;
+            right: 20%;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+
+        .shield {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 120px;
+            color: var(--warning-color);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes swing {
+            0%, 100% {
+                transform: rotate(-3deg);
+            }
+            50% {
+                transform: rotate(3deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .error-container {
+                padding: 2rem;
+            }
+
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-title {
+                font-size: 1.8rem;
+            }
+
+            .error-message {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <i class="fas fa-lock animated-lock"></i>
+        <i class="fas fa-lock animated-lock"></i>
+        <i class="fas fa-lock animated-lock"></i>
+        <i class="fas fa-lock animated-lock"></i>
+        <i class="fas fa-shield-alt shield"></i>
+
+        <div class="error-code">403</div>
+        <h1 class="error-title">Access Denied</h1>
+        <p class="error-message">
+            Sorry, but you don't have permission to access this page. 
+            Please make sure you're logged in with the appropriate account 
+            or contact an administrator if you believe this is an error.
+        </p>
+        <div class="error-actions">
+            <a href="/" class="home-button">
+                <i class="fas fa-home"></i>
+                Return to Home
+            </a>
+            <a href="/login" class="login-link">
+                <i class="fas fa-sign-in-alt"></i>
+                Login with a different account
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

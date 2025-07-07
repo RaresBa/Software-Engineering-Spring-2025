@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Budget</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .budget-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2.5rem 3rem;
+            text-align: center;
+        }
+        .budget-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #6366f1;
+        }
+        .budget-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+        .budget-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+        .back-btn {
+            margin-top: 2rem;
+            background: #6366f1;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #4f46e5;
+        }
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-secondary:hover { background: #4b5563; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+    <form id="budgetForm" method="POST">
+        <input type="hidden" name="base_budget" id="base_budget" value="{{ base_budget }}">
+        <input type="hidden" name="risk_allocation" id="risk_allocation" value="{{ risk_allocation }}">
+        <input type="hidden" name="final_budget" id="final_budget" value="{{ final_budget }}">
+        <div class="budget-card">
+            <div class="budget-title"><i class="fas fa-wallet"></i> Project Budget</div>
+            <div class="budget-amount">Base Budget: ${{ '%.2f'|format(base_budget) }}</div>
+            <div class="budget-label">Base budget (estimated or saved)</div>
+            <div class="budget-amount">Risk Allocation: ${{ '%.2f'|format(risk_allocation) }}</div>
+            <div class="budget-label">Risk allocation amount</div>
+            <div class="budget-amount">Final Budget: ${{ '%.2f'|format(final_budget) }}</div>
+            <div class="budget-label">Total budget including risk allocation</div>
+            <div style="margin-top:1rem; display:flex; gap:1rem; justify-content:center;">
+                <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                <button type="button" id="openBudgetCalculator" class="back-btn"><i class="fas fa-calculator"></i> Calculator</button>
+            </div>
+        </div>
+    </form>
+    <!-- Budget Calculator Modal -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-calculator"></i> Budget Calculator</h3>
+            <div id="modalRiskNote" class="form-group" style="font-size:1rem; color:#6b7280; margin-bottom:1rem;"></div>
+            <div class="form-group">
+                <label for="modalRiskPercentage">Risk Percentage (%)</label>
+                <input type="number" id="modalRiskPercentage" placeholder="Enter risk %" min="1" max="100" value="10">
+            </div>
+            <div style="margin:1rem 0;">
+                <div>Risk Allocation: <span id="modalRiskAllocation">0</span></div>
+                <div>Final Budget: <span id="modalFinalBudget">0</span></div>
+            </div>
+            <div style="display:flex; gap:1rem; justify-content:flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="calculateBudget()">Calculate</button>
+                <button type="button" class="btn btn-success" onclick="confirmBudget()">Confirm</button>
+                <button type="button" class="btn btn-danger" onclick="closeBudgetModal()">Reject</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const projectType = "{{ project_type }}";
+        const riskNotes = {
+            ai_ml: 'AI/ML: Industry standard risk 55%-90%, mean 72.5%. Suggested budget risk allocation: 9%',
+            game_dev: 'Game Development: Industry standard risk 60%-99%, mean 79.5%. Suggested budget risk allocation: 15%',
+            mission_critical: 'Mission Critical: Industry standard risk 45%-85%, mean 65%. Suggested budget risk allocation: 6-9%',
+            mobile_app: 'Mobile App: Industry standard risk 45%-80%, mean 62.5%. Suggested budget risk allocation: 6-9%',
+            embedded: 'Embedded: Industry standard risk 60%-95%, mean 77.5%. Suggested budget risk allocation: 15%'
+        };
+        document.getElementById('openBudgetCalculator').addEventListener('click', () => {
+            document.getElementById('modalRiskNote').innerText = riskNotes[projectType] || '';
+            document.getElementById('budgetModal').classList.add('show');
+        });
+
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').classList.remove('show');
+        }
+
+        function calculateBudget() {
+            const base = parseFloat(document.getElementById('base_budget').value) || 0;
+            const perc = parseFloat(document.getElementById('modalRiskPercentage').value) || 0;
+            const alloc = base * perc / 100;
+            const finalB = base + alloc;
+            document.getElementById('modalRiskAllocation').innerText = alloc.toFixed(2);
+            document.getElementById('modalFinalBudget').innerText = finalB.toFixed(2);
+        }
+
+        function confirmBudget() {
+            const base = parseFloat(document.getElementById('base_budget').value) || 0;
+            const alloc = parseFloat(document.getElementById('modalRiskAllocation').innerText) || 0;
+            const finalB = parseFloat(document.getElementById('modalFinalBudget').innerText) || 0;
+            document.getElementById('base_budget').value = base;
+            document.getElementById('risk_allocation').value = alloc;
+            document.getElementById('final_budget').value = finalB;
+            closeBudgetModal();
+            document.getElementById('budgetForm').submit();
+        }
+    </script>
+</body>
+</html> 
